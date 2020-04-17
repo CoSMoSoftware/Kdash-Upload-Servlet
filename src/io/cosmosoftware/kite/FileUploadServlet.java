@@ -34,7 +34,7 @@ public class FileUploadServlet extends HttpServlet {
   }
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
     String applicationPath = this.getServletContext().getRealPath("");
-    String tempFolder = applicationPath + File.separator + "tempFolder/";
+    String tempFolder = applicationPath + "tempFolder/";
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
     String[] command;
@@ -45,7 +45,7 @@ public class FileUploadServlet extends HttpServlet {
       command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
       allureDirectory = "/var/www/allure";
-      command = new String[]{"/usr/bin/bash", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -72,6 +72,7 @@ public class FileUploadServlet extends HttpServlet {
     ZipInputStream stream = new ZipInputStream(theFile);
     String outdir = outputDirectory;
     try {
+      System.out.println("Unzipping data to " + outputDirectory);
       ZipEntry entry;
       while ((entry = stream.getNextEntry()) != null) {
         String outpath = outdir + "/" + entry.getName();
@@ -91,7 +92,10 @@ public class FileUploadServlet extends HttpServlet {
           }
         }
       }
-    } finally {
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    finally {
       stream.close();
     }
   }
