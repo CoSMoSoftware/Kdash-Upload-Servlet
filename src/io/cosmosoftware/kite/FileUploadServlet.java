@@ -38,6 +38,7 @@ public class FileUploadServlet extends HttpServlet {
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
     String[] command;
+    String[] chmodCommand = null;
     String allureDirectory;
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
@@ -46,6 +47,8 @@ public class FileUploadServlet extends HttpServlet {
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
       allureDirectory = "/var/www/allure";
       command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      // give nginx access
+      chmodCommand = new String[]{"sudo", "chmod", "-R", "755" , allureDirectory};
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -57,6 +60,11 @@ public class FileUploadServlet extends HttpServlet {
 
       unzip(part, unzipDirectory);
       executeCommand(command);
+      if (chmodCommand !=null) {
+        executeCommand(chmodCommand);
+      }
+
+
       deleteDirectory(new File(unzipDirectory));
     }
     response.setStatus(200);
