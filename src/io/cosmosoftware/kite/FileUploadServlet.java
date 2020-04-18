@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 @WebServlet(
         description = "Upload File To The Server",
-        urlPatterns = {"/fileUploadServlet"}
+        urlPatterns = {"/upload"}
 )
 @MultipartConfig(
         fileSizeThreshold = 31457280,
@@ -139,8 +139,6 @@ public class FileUploadServlet extends HttpServlet {
     } catch (IOException e) {
       // logger.error("Exception while reading the Input Stream", e);
     } finally {
-      System.out.println("TESt 4");
-
       if (stdInput != null) {
         try {
           stdInput.close();
