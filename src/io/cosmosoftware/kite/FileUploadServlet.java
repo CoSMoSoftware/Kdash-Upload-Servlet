@@ -38,7 +38,8 @@ public class FileUploadServlet extends HttpServlet {
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
     String[] command;
-    String[] chmodCommand = null;
+    String[] chmodCommandDir = null;
+    String[] chmodCommandFile = null;
     String allureDirectory;
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
@@ -48,7 +49,8 @@ public class FileUploadServlet extends HttpServlet {
       allureDirectory = "/var/www/allure";
       command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
       // give nginx access
-      chmodCommand = new String[]{"sudo", "chmod", "-R", "755" , allureDirectory};
+      chmodCommandDir = new String[]{"sudo", "find", allureDirectory, "-type", "d", "-exec", "chmod", "755", "{}", "+"};
+      chmodCommandFile = new String[]{"sudo", "find", allureDirectory, "-type", "f", "-exec", "chmod", "644", "{}", "+"};
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -60,8 +62,9 @@ public class FileUploadServlet extends HttpServlet {
 
       unzip(part, unzipDirectory);
       executeCommand(command);
-      if (chmodCommand !=null) {
-        executeCommand(chmodCommand);
+      if (chmodCommandDir !=null) {
+        executeCommand(chmodCommandDir);
+        executeCommand(chmodCommandFile);
       }
 
 
@@ -116,6 +119,7 @@ public class FileUploadServlet extends HttpServlet {
     for (String component : command) {
       System.out.print(component + " ");
     }
+    System.out.println();
     Process process = processBuilder.start();
     String line;
     BufferedReader stdInput = null;
