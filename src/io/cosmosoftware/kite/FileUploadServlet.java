@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 @WebServlet(
         description = "Upload File To The Server",
-        urlPatterns = {"/fileUploadServlet"}
+        urlPatterns = {"/upload"}
 )
 @MultipartConfig(
         fileSizeThreshold = 31457280,
@@ -34,10 +34,11 @@ public class FileUploadServlet extends HttpServlet {
   }
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
     String applicationPath = this.getServletContext().getRealPath("");
-    String tempFolder = applicationPath + File.separator + "tempFolder/";
+    String tempFolder = applicationPath + "tempFolder/";
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
     String[] command;
+    String[] chmodCommand = null;
     String allureDirectory;
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
@@ -45,7 +46,9 @@ public class FileUploadServlet extends HttpServlet {
       command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
       allureDirectory = "/var/www/allure";
-      command = new String[]{"/usr/bin/bash", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      // give nginx access
+      chmodCommand = new String[]{"sudo", "chmod", "-R", "755" , allureDirectory};
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -57,6 +60,11 @@ public class FileUploadServlet extends HttpServlet {
 
       unzip(part, unzipDirectory);
       executeCommand(command);
+      if (chmodCommand !=null) {
+        executeCommand(chmodCommand);
+      }
+
+
       deleteDirectory(new File(unzipDirectory));
     }
     response.setStatus(200);
@@ -72,6 +80,7 @@ public class FileUploadServlet extends HttpServlet {
     ZipInputStream stream = new ZipInputStream(theFile);
     String outdir = outputDirectory;
     try {
+      System.out.println("Unzipping data to " + outputDirectory);
       ZipEntry entry;
       while ((entry = stream.getNextEntry()) != null) {
         String outpath = outdir + "/" + entry.getName();
@@ -91,7 +100,10 @@ public class FileUploadServlet extends HttpServlet {
           }
         }
       }
-    } finally {
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    finally {
       stream.close();
     }
   }
@@ -127,8 +139,6 @@ public class FileUploadServlet extends HttpServlet {
     } catch (IOException e) {
       // logger.error("Exception while reading the Input Stream", e);
     } finally {
-      System.out.println("TESt 4");
-
       if (stdInput != null) {
         try {
           stdInput.close();
