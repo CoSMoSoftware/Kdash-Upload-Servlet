@@ -34,6 +34,7 @@ public class FileUploadServlet extends HttpServlet {
   }
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
     String applicationPath = this.getServletContext().getRealPath("");
+    String tagName = request.getParameter("tagName");
     String tempFolder = applicationPath + "tempFolder/";
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
@@ -42,10 +43,10 @@ public class FileUploadServlet extends HttpServlet {
     String allureDirectory;
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
-      allureDirectory = "C:\\nginx\\html\\allure";
+      allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
       command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
-      allureDirectory = "/var/www/allure";
+      allureDirectory = "/var/www/allure/" + tagName;
       command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
       // give nginx access
       chmodCommand = new String[]{"sudo", "chmod", "-R", "755" , allureDirectory};
