@@ -8,7 +8,7 @@ import java.io.*;
 
 @WebServlet(
         description = "Delete Result Folder",
-        urlPatterns = {"/upload"}
+        urlPatterns = {"/delete"}
 )
 
 public class DeleteResultServlet extends HttpServlet {
@@ -16,7 +16,7 @@ public class DeleteResultServlet extends HttpServlet {
   public DeleteResultServlet() {
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
       this.handleRequest(request, response);
   }
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
