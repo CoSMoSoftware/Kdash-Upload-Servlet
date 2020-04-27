@@ -45,20 +45,11 @@ public class CleanUpArchivesServlet extends HttpServlet {
       long diff = new Date().getTime() - archive.lastModified();
       if (diff > 14 * 24 * 60 * 60 * 1000) {
         System.out.println("Deleting folder:" + archive.getName());
-        deleteDirectory(archive);
+        Utils.deleteDirectory(archive);
       }
     }
     response.setStatus(200);
   }
 
-  private static boolean deleteDirectory(File directoryToBeDeleted) {
-    File[] allContents = directoryToBeDeleted.listFiles();
-    if (allContents != null) {
-      for (File file : allContents) {
-        deleteDirectory(file);
-      }
-    }
-    return directoryToBeDeleted.delete();
-  }
 }
 

@@ -1,20 +1,20 @@
 package io.cosmosoftware.kite;
 
+import javax.json.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.file.Files;
 
 @WebServlet(
-        description = "Delete Result Folder",
-        urlPatterns = {"/delete"}
+        description = "Check result status",
+        urlPatterns = {"/checkResult"}
 )
 
-public class DeleteResultServlet extends HttpServlet {
+public class CheckResultStatusServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  public DeleteResultServlet() {
+  public CheckResultStatusServlet() {
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -26,17 +26,13 @@ public class DeleteResultServlet extends HttpServlet {
   }
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String tagName = request.getParameter("tagName");
-    long timeStamp = System.currentTimeMillis();
     String allureDirectory;
-    String archivedDirectory;
+    String tagName = request.getParameter("tagName");
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
       allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
-      archivedDirectory = "C:\\nginx\\html\\archives\\" + tagName + timeStamp;
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
       allureDirectory = "/var/www/allure/" + tagName;
-      archivedDirectory = "/var/www/archives/" + tagName + timeStamp;
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -44,17 +40,14 @@ public class DeleteResultServlet extends HttpServlet {
       return;
     }
 
-    File directoryToBeDeleted = new File(allureDirectory);
-    File destinationDirectory = new File(archivedDirectory);
+    JsonArray status = Utils.checkStatus(allureDirectory);
 
-    if(directoryToBeDeleted.exists()) {
-      Utils.moveDirectory(directoryToBeDeleted, destinationDirectory);
-      response.setStatus(200);
-    } else {
-      response.setStatus(400);
-    }
+    response.setStatus(200);
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().print(status);
+    response.getWriter().flush();
   }
-
 
 }
 

@@ -2,8 +2,10 @@ package io.cosmosoftware.kite;
 
 import java.io.*;
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,10 +20,10 @@ public class ResultListServlet extends HttpServlet {
   public ResultListServlet() {
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       this.handleRequest(request, response);
   }
-  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     String osName = System.getProperty("os.name").toLowerCase();
     File allureDirectory;
 
@@ -40,7 +42,9 @@ public class ResultListServlet extends HttpServlet {
     File[] resultList = allureDirectory.listFiles();
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
     for (File result: resultList) {
+      JsonArray status = Utils.checkStatus(result.getAbsolutePath());
       JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
+      fileJsonBuilder.add("test cases", status);
       fileJsonBuilder.add("name", result.getName());
       fileJsonBuilder.add("lastModified", result.lastModified());
       arrayBuilder.add(fileJsonBuilder.build());

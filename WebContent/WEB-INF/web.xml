@@ -17,4 +17,8 @@
       <servlet-name>CleanUpArchivesServlet</servlet-name>
       <servlet-class>io.cosmosoftware.kite.test.CleanUpArchivesServlet</servlet-class>
    </servlet>
+   <servlet>
+      <servlet-name>CheckResultStatusServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.CheckResultStatusServlet</servlet-class>
+   </servlet>
 </web-app>
