@@ -13,4 +13,8 @@
       <servlet-name>DeleteResultServlet</servlet-name>
       <servlet-class>io.cosmosoftware.kite.test.DeleteResultServlet</servlet-class>
    </servlet>
+   <servlet>
+      <servlet-name>CleanUpArchivesServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.CleanUpArchivesServlet</servlet-class>
+   </servlet>
 </web-app>

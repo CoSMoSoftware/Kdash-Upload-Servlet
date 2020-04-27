@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -44,22 +45,31 @@ public class FileUploadServlet extends HttpServlet {
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
       allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
-      command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--output", allureDirectory};
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
       allureDirectory = "/var/www/allure/" + tagName;
-      command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--clean", "--output", allureDirectory};
+      command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--output", allureDirectory};
       // give nginx access
-      chmodCommand = new String[]{"sudo", "chmod", "-R", "755" , allureDirectory};
+      chmodCommand = new String[]{"sudo", "chmod", "-R", "777" , allureDirectory};
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
               "Only Windows and Linux are supported.");
       return;
     }
+
+    RequestDispatcher dispatcher = request.getRequestDispatcher("/cleanup");
+    dispatcher.forward(request, response);
+
     for (Iterator iterator = request.getParts().iterator(); iterator.hasNext(); ) {
       Part part = (Part) iterator.next();
 
       unzip(part, unzipDirectory);
+      File allureFolder = new File(allureDirectory);
+      if(allureFolder.exists()) {
+        RequestDispatcher dispatcher2 = request.getRequestDispatcher("/delete");
+        dispatcher2.forward(request, response);
+      }
       executeCommand(command);
       if (chmodCommand !=null) {
         executeCommand(chmodCommand);

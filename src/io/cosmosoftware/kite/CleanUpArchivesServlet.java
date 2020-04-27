@@ -6,15 +6,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Date;
 
 @WebServlet(
-        description = "Delete Result Folder",
-        urlPatterns = {"/delete"}
+        description = "Clean up archives Folder",
+        urlPatterns = {"/cleanup"}
 )
 
-public class DeleteResultServlet extends HttpServlet {
+public class CleanUpArchivesServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  public DeleteResultServlet() {
+  public CleanUpArchivesServlet() {
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -26,17 +27,12 @@ public class DeleteResultServlet extends HttpServlet {
   }
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String tagName = request.getParameter("tagName");
-    long timeStamp = System.currentTimeMillis();
-    String allureDirectory;
     String archivedDirectory;
     String osName = System.getProperty("os.name").toLowerCase();
     if (osName.indexOf("win") >= 0) {
-      allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
-      archivedDirectory = "C:\\nginx\\html\\archives\\" + tagName + timeStamp;
+      archivedDirectory = "C:\\nginx\\html\\archives\\";
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
-      allureDirectory = "/var/www/allure/" + tagName;
-      archivedDirectory = "/var/www/archives/" + tagName + timeStamp;
+      archivedDirectory = "/var/www/archives/";
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
@@ -44,24 +40,25 @@ public class DeleteResultServlet extends HttpServlet {
       return;
     }
 
-    File directoryToBeDeleted = new File(allureDirectory);
-    File destinationDirectory = new File(archivedDirectory);
-
-    if(directoryToBeDeleted.exists()) {
-      deleteDirectory(directoryToBeDeleted, destinationDirectory);
-      response.setStatus(200);
-    } else {
-      response.setStatus(400);
+    File archivedFolder = new File(archivedDirectory);
+    for(File archive: archivedFolder.listFiles()) {
+      long diff = new Date().getTime() - archive.lastModified();
+      if (diff > 14 * 24 * 60 * 60 * 1000) {
+        System.out.println("Deleting folder:" + archive.getName());
+        deleteDirectory(archive);
+      }
     }
+    response.setStatus(200);
   }
 
-
-  private static void deleteDirectory(File directoryToBeDeleted, File destinationDirectory) {
-   try {
-      Files.move(directoryToBeDeleted.toPath(), destinationDirectory.toPath());
-    } catch (IOException ex) {
-      ex.printStackTrace();
+  private static boolean deleteDirectory(File directoryToBeDeleted) {
+    File[] allContents = directoryToBeDeleted.listFiles();
+    if (allContents != null) {
+      for (File file : allContents) {
+        deleteDirectory(file);
+      }
     }
+    return directoryToBeDeleted.delete();
   }
 }
 
