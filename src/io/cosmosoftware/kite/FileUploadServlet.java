@@ -57,7 +57,7 @@ public class FileUploadServlet extends HttpServlet {
     }
 
     RequestDispatcher dispatcher = request.getRequestDispatcher("/cleanup");
-    dispatcher.forward(request, response);
+    dispatcher.include(request, response);
 
     for (Iterator iterator = request.getParts().iterator(); iterator.hasNext(); ) {
       Part part = (Part) iterator.next();
@@ -65,8 +65,8 @@ public class FileUploadServlet extends HttpServlet {
       Utils.unzip(part, unzipDirectory);
       File allureFolder = new File(allureDirectory);
       if(allureFolder.exists()) {
-        RequestDispatcher dispatcher2 = request.getRequestDispatcher("/delete");
-        dispatcher2.forward(request, response);
+        dispatcher = request.getRequestDispatcher("/delete");
+        dispatcher.include(request, response);
       }
       Utils.executeCommand(command);
       if (chmodCommand !=null) {
