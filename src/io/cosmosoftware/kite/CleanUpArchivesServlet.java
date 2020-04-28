@@ -41,6 +41,9 @@ public class CleanUpArchivesServlet extends HttpServlet {
     }
 
     File archivedFolder = new File(archivedDirectory);
+    if(!archivedFolder.exists()) {
+      archivedFolder.mkdir();
+    }
     for(File archive: archivedFolder.listFiles()) {
       long diff = new Date().getTime() - archive.lastModified();
       if (diff > 14 * 24 * 60 * 60 * 1000) {
