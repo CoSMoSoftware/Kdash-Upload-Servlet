@@ -1,11 +1,12 @@
 package io.cosmosoftware.kite;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.file.Files;
 
 @WebServlet(
         description = "Delete Result Folder",
@@ -17,16 +18,17 @@ public class DeleteResultServlet extends HttpServlet {
   public DeleteResultServlet() {
   }
 
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     this.handleRequest(request, response);
   }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     this.handleRequest(request, response);
   }
 
-  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     String tagName = request.getParameter("tagName");
+    String jsp = request.getParameter("jsp");
     long timeStamp = System.currentTimeMillis();
     String allureDirectory;
     String archivedDirectory;
@@ -49,9 +51,12 @@ public class DeleteResultServlet extends HttpServlet {
 
     if(directoryToBeDeleted.exists()) {
       Utils.moveDirectory(directoryToBeDeleted, destinationDirectory);
+    }
+    if(jsp == null) {
       response.setStatus(200);
     } else {
-      response.setStatus(400);
+      RequestDispatcher dispatcher = request.getRequestDispatcher("/resultList");
+      dispatcher.forward(request, response);
     }
   }
 

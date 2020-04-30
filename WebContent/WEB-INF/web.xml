@@ -21,4 +21,8 @@
       <servlet-name>CheckResultStatusServlet</servlet-name>
       <servlet-class>io.cosmosoftware.kite.test.CheckResultStatusServlet</servlet-class>
    </servlet>
+   <display-name>Result Upload Servlet</display-name>
+   <welcome-file-list>
+      <welcome-file>fileUpload.jsp</welcome-file>
+   </welcome-file-list>
 </web-app>
