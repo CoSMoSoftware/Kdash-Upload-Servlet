@@ -14,8 +14,9 @@
 	        <h1>File Upload</h1>
 	        <form id="fileUploadForm" method="post" action="upload" enctype="multipart/form-data">
 	            <div class="form_group">
-                    <div>
-                        <label>Upload File</label><span id="colon">: </span><input id="fileAttachment" type="file" name="fileUpload" />
+					<div>
+						<input type='hidden' name='jsp' id='jsp' value='true' />
+						<label>Upload File</label><span id="colon">: </span><input id="fileAttachment" type="file" name="fileUpload" />
                         <span id="fileUploadErr">Please Upload A File!</span>
                         <span>Enter a tag name: <input type="text" name="tagName"  id="tagName" /> </span>
                         <span id="tagNameErr">Please Enter A Tag Name!</span>

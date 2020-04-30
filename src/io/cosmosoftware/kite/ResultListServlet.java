@@ -23,6 +23,11 @@ public class ResultListServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       this.handleRequest(request, response);
   }
+
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    this.handleRequest(request, response);
+  }
+
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     String osName = System.getProperty("os.name").toLowerCase();
     File allureDirectory;

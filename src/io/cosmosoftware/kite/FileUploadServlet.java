@@ -34,6 +34,7 @@ public class FileUploadServlet extends HttpServlet {
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
     String applicationPath = this.getServletContext().getRealPath("");
     String tagName = request.getParameter("tagName");
+    String jsp = request.getParameter("jsp");
     String tempFolder = applicationPath + "tempFolder/";
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
@@ -61,22 +62,27 @@ public class FileUploadServlet extends HttpServlet {
 
     for (Iterator iterator = request.getParts().iterator(); iterator.hasNext(); ) {
       Part part = (Part) iterator.next();
-
-      Utils.unzip(part, unzipDirectory);
-      File allureFolder = new File(allureDirectory);
-      if(allureFolder.exists()) {
-        dispatcher = request.getRequestDispatcher("/delete");
-        dispatcher.include(request, response);
+      if(part.getSubmittedFileName() != null) {
+        Utils.unzip(part, unzipDirectory);
+        File allureFolder = new File(allureDirectory);
+        if (allureFolder.exists()) {
+          dispatcher = request.getRequestDispatcher("/delete");
+          dispatcher.include(request, response);
+        }
+        Utils.executeCommand(command);
+        if (chmodCommand != null) {
+          Utils.executeCommand(chmodCommand);
+        }
+        Utils.deleteDirectory(new File(unzipDirectory));
       }
-      Utils.executeCommand(command);
-      if (chmodCommand !=null) {
-        Utils.executeCommand(chmodCommand);
-      }
-
-
-      Utils.deleteDirectory(new File(unzipDirectory));
     }
-    response.setStatus(200);
+
+    if(jsp == null) {
+      response.setStatus(200);
+    } else {
+      dispatcher = request.getRequestDispatcher("/resultList");
+      dispatcher.forward(request, response);
+    }
   }
 
 
