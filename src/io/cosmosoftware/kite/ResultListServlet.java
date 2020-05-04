@@ -52,7 +52,7 @@ public class ResultListServlet extends HttpServlet {
         fileJsonBuilder.add("status", status);
         fileJsonBuilder.add("name", result.getName());
         fileJsonBuilder.add("lastModified", result.lastModified());
-        fileJsonBuilder.add("allureURL", "http://" + request.getServerName() + "/allure/" + result.getName());
+        fileJsonBuilder.add("allureURL", "https://" + request.getServerName() + "/" + result.getName());
         arrayBuilder.add(fileJsonBuilder.build());
       }
     }
