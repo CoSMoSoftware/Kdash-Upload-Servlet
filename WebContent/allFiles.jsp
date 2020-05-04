@@ -31,11 +31,11 @@
                          %>
                          <table>
                              <tbody>
-                             <% for(String key: status.keySet()) { %>
                              <tr>
-                                 <td align="center"><span> <%= key%>: <%= status.get(key)%></span></td>
-                             </tr>
+                             <% for(String key: status.keySet()) { %>
+                                 <td align="center"  class="<%=key%>"><span> <%= key%>: <%= status.get(key)%></span></td>
                              <% } %>
+                             </tr>
                              </tbody>
                          </table>
                          <% } %>
