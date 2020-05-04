@@ -1,10 +1,7 @@
 package io.cosmosoftware.kite;
-
 import java.io.*;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import java.util.Arrays;
+import javax.json.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -46,13 +43,17 @@ public class ResultListServlet extends HttpServlet {
 
     File[] resultList = allureDirectory.listFiles();
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+    String[] bannedFolders = new String[]{"plugins", "data", "index.html", "favicon.ico", "history", "widgets", "styles.css", "app.js", "export"};
+
     for (File result: resultList) {
-      JsonArray status = Utils.checkStatus(result.getAbsolutePath());
-      JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
-      fileJsonBuilder.add("test cases", status);
-      fileJsonBuilder.add("name", result.getName());
-      fileJsonBuilder.add("lastModified", result.lastModified());
-      arrayBuilder.add(fileJsonBuilder.build());
+      if(!Arrays.stream(bannedFolders).anyMatch(result.getName()::equals)) {
+        JsonObject status = Utils.countStatus(result.getAbsolutePath());
+        JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
+        fileJsonBuilder.add("status", status);
+        fileJsonBuilder.add("name", result.getName());
+        fileJsonBuilder.add("lastModified", result.lastModified());
+        arrayBuilder.add(fileJsonBuilder.build());
+      }
     }
     if(jsp == null) {
       response.setStatus(200);

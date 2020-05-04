@@ -1,4 +1,5 @@
 <%@page import="javax.json.JsonArray" %>
+<%@page import="javax.json.JsonObject" %>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -24,20 +25,20 @@
                      <td align="center"><span id="fileName"><%=results.getJsonObject(i).getString("name") %></span></td>
                      <td align="center"><span id="fileSize"><%=new java.sql.Date(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
                      <td>
-                        <%  JsonArray testCases = results.getJsonObject(i).getJsonArray("test cases");
-                                             if(testCases != null && testCases.size() > 0) {
-                                               for(int j=0; j<testCases.size(); j++) {
-                        %>
-                        <table>
-                            <tbody>
-                            <tr>
-                                 <td align="center"><span id="testCaseName"><%=testCases.getJsonObject(j).getString("name") %></span></td>
-                                 <td align="center"><span id="testCaseStatus"><%=testCases.getJsonObject(j).getString("status") %></span></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                         <% }
-                         } %>
+                        <%
+                         JsonObject status = results.getJsonObject(i).getJsonObject("status");
+                            if(status != null && status.size() > 0) {
+                         %>
+                         <table>
+                             <tbody>
+                             <% for(String key: status.keySet()) { %>
+                             <tr>
+                                 <td align="center"><span> <%= key%>: <%= status.get(key)%></span></td>
+                             </tr>
+                             <% } %>
+                             </tbody>
+                         </table>
+                         <% } %>
                      </td>
                      <td align="center"><span id="delete"><a id="downloadLink" class="hyperLink" href='<%=request.getContextPath()%>/delete?jsp=true&tagName=<%=results.getJsonObject(i).getString("name")%>'>Delete</a></span></td>
                   </tr>

@@ -7,8 +7,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,7 +20,7 @@ public class Utils {
   /**
    * Download file.
    *
-   * @param urlStr the url str
+   * @param urlStr   the url str
    * @param filePath the file path
    * @throws IOException Signals that an I/O exception has occurred.
    */
@@ -76,7 +75,7 @@ public class Utils {
 
       fileReader = new FileReader(new File(fileStr));
       jsonReader = Json.createReader(fileReader);
-      jsonObject =  jsonReader.readObject();
+      jsonObject = jsonReader.readObject();
     } catch (Exception e) {
     } finally {
       if (fileReader != null) {
@@ -144,8 +143,7 @@ public class Utils {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    }
-    finally {
+    } finally {
       stream.close();
     }
   }
@@ -192,7 +190,7 @@ public class Utils {
       throw new IllegalArgumentException(
               "Something is wrong with the command execution, please check the log file for more details");
     }
-    String output =  buildOutput(process, null, null);
+    String output = buildOutput(process, null, null);
     return output;
   }
 
@@ -240,5 +238,29 @@ public class Utils {
     } catch (Exception e) {
     }
     return arrayBuilder.build();
+  }
+
+  public static JsonObject countStatus(String filePath) {
+    String allureDirectory = null;
+    String osName = System.getProperty("os.name").toLowerCase();
+    if (osName.indexOf("win") >= 0) {
+      allureDirectory = filePath + "\\data\\test-cases\\";
+    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+      allureDirectory = filePath + "/data/test-cases/";
+    }
+    File allureFolder = new File(allureDirectory);
+    JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
+    Map<String, Integer> countCases = new HashMap<String, Integer>();
+    try {
+      for (File subFile : allureFolder.listFiles()) {
+        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
+        countCases.merge(result.getString("status"), 1, Integer::sum);
+      }
+      for (Map.Entry<String, Integer> entry : countCases.entrySet()) {
+        jsonBuilder.add(entry.getKey(), entry.getValue());
+      }
+    } catch (Exception e) {
+    }
+    return jsonBuilder.build();
   }
 }
