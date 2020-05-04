@@ -256,7 +256,9 @@ public class Utils {
         JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
         countCases.merge(result.getString("status"), 1, Integer::sum);
       }
-      for (Map.Entry<String, Integer> entry : countCases.entrySet()) {
+      Map<String, Integer> reverseSortedMap = new TreeMap<String, Integer>(Collections.reverseOrder());
+      reverseSortedMap.putAll(countCases);
+      for (Map.Entry<String, Integer> entry : reverseSortedMap.entrySet()) {
         jsonBuilder.add(entry.getKey(), entry.getValue());
       }
     } catch (Exception e) {

@@ -70,3 +70,15 @@ label {
 	text-decoration: none;
 	cursor: pointer;
 }
+
+.broken {
+    background-color: #ffd050;
+}
+
+.failed {
+    background-color: #fd5a3e;
+}
+
+.passed {
+    background-color: #97cc64;
+}
