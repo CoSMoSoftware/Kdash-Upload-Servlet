@@ -22,7 +22,7 @@
                        for(int i=0; i<results.size(); i++) {
                   %>
                   <tr>
-                     <td align="center"><span id="fileName"><%=results.getJsonObject(i).getString("name") %></span></td>
+                     <td align="center"><a id="tagName" class="hyperLink" href='<%=results.getJsonObject(i).getString("allureURL")%>'><%=results.getJsonObject(i).getString("name") %></a></td>
                      <td align="center"><span id="fileSize"><%=new java.sql.Date(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
                      <td>
                         <%
