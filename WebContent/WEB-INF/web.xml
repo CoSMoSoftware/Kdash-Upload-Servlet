@@ -5,4 +5,24 @@
       <servlet-name>FileUploadServlet</servlet-name>
       <servlet-class>io.cosmosoftware.kite.test.FileUploadServlet</servlet-class>
    </servlet>
+   <servlet>
+      <servlet-name>ResultListServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.ResultListServlet</servlet-class>
+   </servlet>
+   <servlet>
+      <servlet-name>DeleteResultServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.DeleteResultServlet</servlet-class>
+   </servlet>
+   <servlet>
+      <servlet-name>CleanUpArchivesServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.CleanUpArchivesServlet</servlet-class>
+   </servlet>
+   <servlet>
+      <servlet-name>CheckResultStatusServlet</servlet-name>
+      <servlet-class>io.cosmosoftware.kite.test.CheckResultStatusServlet</servlet-class>
+   </servlet>
+   <display-name>Result Upload Servlet</display-name>
+   <welcome-file-list>
+      <welcome-file>fileUpload.jsp</welcome-file>
+   </welcome-file-list>
 </web-app>
