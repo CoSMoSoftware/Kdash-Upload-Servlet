@@ -28,7 +28,7 @@ public class ResultListServlet extends HttpServlet {
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     String osName = System.getProperty("os.name").toLowerCase();
     File allureDirectory;
-    String jsp = request.getParameter("jsp");
+    String json = request.getParameter("json");
     if (osName.indexOf("win") >= 0) {
       allureDirectory = new File("C:\\nginx\\html\\allure\\");
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
@@ -56,16 +56,17 @@ public class ResultListServlet extends HttpServlet {
         arrayBuilder.add(fileJsonBuilder.build());
       }
     }
-    if(jsp == null) {
+
+    if(json == null) {
+      request.setAttribute("allFiles", arrayBuilder.build());
+      RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
+      dispatcher.forward(request, response);
+    } else {
       response.setStatus(200);
       response.setContentType("application/json");
       response.setCharacterEncoding("UTF-8");
       response.getWriter().print(arrayBuilder.build().toString());
       response.getWriter().flush();
-    } else {
-      request.setAttribute("allFiles", arrayBuilder.build());
-      RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
-      dispatcher.forward(request, response);
     }
   }
 
