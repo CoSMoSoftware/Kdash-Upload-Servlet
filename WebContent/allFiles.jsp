@@ -40,7 +40,7 @@
                          </table>
                          <% } %>
                      </td>
-                     <td align="center"><span id="delete"><a id="downloadLink" class="hyperLink" href='<%=request.getContextPath()%>/delete?jsp=true&tagName=<%=results.getJsonObject(i).getString("name")%>'>Delete</a></span></td>
+                     <td align="center"><span id="delete"><a id="downloadLink" class="hyperLink" href='<%=request.getContextPath()%>/delete?tagName=<%=results.getJsonObject(i).getString("name")%>'>Delete</a></span></td>
                   </tr>
                   <% }
                    } else { %>
@@ -51,7 +51,7 @@
                </tbody>
             </table>
             <div class="margin_top_15px">
-               <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Back</a>
+               <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
             </div>
          </div>
      </body>

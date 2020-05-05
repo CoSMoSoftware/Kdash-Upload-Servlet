@@ -30,7 +30,7 @@
 	    </div>
 
 		<div class="panel" style="width: 849px;">
-	        <a id="allFiles" class="hyperLink" href="<%=request.getContextPath()%>/resultList?jsp=true">List all uploaded files</a>
+	        <a id="allFiles" class="hyperLink" href="<%=request.getContextPath()%>/resultList">List all uploaded files</a>
 	    </div>
 	</body>
 </html>

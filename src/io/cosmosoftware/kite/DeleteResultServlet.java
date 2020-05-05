@@ -28,7 +28,7 @@ public class DeleteResultServlet extends HttpServlet {
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     String tagName = request.getParameter("tagName");
-    String jsp = request.getParameter("jsp");
+    String json = request.getParameter("json");
     long timeStamp = System.currentTimeMillis();
     String allureDirectory;
     String archivedDirectory;
@@ -52,11 +52,11 @@ public class DeleteResultServlet extends HttpServlet {
     if(directoryToBeDeleted.exists()) {
       Utils.moveDirectory(directoryToBeDeleted, destinationDirectory);
     }
-    if(jsp == null) {
-      response.setStatus(200);
-    } else {
+    if(json == null) {
       RequestDispatcher dispatcher = request.getRequestDispatcher("/resultList");
       dispatcher.forward(request, response);
+    } else {
+      response.setStatus(200);
     }
   }
 

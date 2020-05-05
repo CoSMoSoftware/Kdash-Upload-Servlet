@@ -34,7 +34,7 @@ public class FileUploadServlet extends HttpServlet {
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
     String applicationPath = this.getServletContext().getRealPath("");
     String tagName = request.getParameter("tagName");
-    String jsp = request.getParameter("jsp");
+    String json = request.getParameter("json");
     String tempFolder = applicationPath + "tempFolder/";
     long timeStamp = System.currentTimeMillis();
     String unzipDirectory = tempFolder + timeStamp;
@@ -77,11 +77,11 @@ public class FileUploadServlet extends HttpServlet {
       }
     }
 
-    if(jsp == null) {
-      response.setStatus(200);
-    } else {
+    if(json == null) {
       dispatcher = request.getRequestDispatcher("/resultList");
       dispatcher.forward(request, response);
+    } else {
+      response.setStatus(200);
     }
   }
 
