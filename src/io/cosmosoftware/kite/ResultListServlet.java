@@ -1,6 +1,9 @@
 package io.cosmosoftware.kite;
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.util.Arrays;
+import java.util.Comparator;
 import javax.json.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -42,7 +45,9 @@ public class ResultListServlet extends HttpServlet {
 
 
     File[] resultList = allureDirectory.listFiles();
+    Arrays.sort(resultList, Comparator.comparingLong(File::lastModified).reversed());
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+    JsonObjectBuilder statBuilder = Json.createObjectBuilder();
     String[] bannedFolders = new String[]{"plugins", "data", "index.html", "favicon.ico", "history", "widgets", "styles.css", "app.js", "export"};
 
     for (File result: resultList) {
@@ -52,13 +57,19 @@ public class ResultListServlet extends HttpServlet {
         fileJsonBuilder.add("status", status);
         fileJsonBuilder.add("name", result.getName());
         fileJsonBuilder.add("lastModified", result.lastModified());
+        fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
         fileJsonBuilder.add("allureURL", "https://" + request.getServerName() + "/" + result.getName());
         arrayBuilder.add(fileJsonBuilder.build());
       }
     }
 
+    statBuilder.add("foldersCount", resultList.length);
+    statBuilder.add("usedSpace", Utils.readableFileSize(FileUtils.sizeOfDirectory(allureDirectory)));
+    statBuilder.add("freeSpace", Utils.readableFileSize(allureDirectory.getFreeSpace()));
+
     if(json == null) {
       request.setAttribute("allFiles", arrayBuilder.build());
+      request.setAttribute("stats", statBuilder.build());
       RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
       dispatcher.forward(request, response);
     } else {

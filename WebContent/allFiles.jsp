@@ -13,8 +13,23 @@
         <div class="panel">
             <h1>Uploaded Results</h1>
             <table class="bordered_table">
+                <thead>
+                <tr align="center"><th>Number of reports</th><th>Free Storage</th><th>Used Storage</th></tr>
+                </thead>
+                <tbody>
+                <%  JsonObject stats = (JsonObject)request.getAttribute("stats");
+                %>
+                <tr>
+                    <td align="center"><span> <%=stats.getInt("foldersCount") %></span></td>
+                    <td align="center"><span> <%=stats.getString("freeSpace") %></span></td>
+                    <td align="center"><span> <%=stats.getString("usedSpace") %></span></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <table class="bordered_table">
                <thead>
-                  <tr align="center"><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Action</th></tr>
+               <tr align="center"><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Size</th></th><th>Action</th></tr>
                </thead>
                <tbody>
                  <%  JsonArray results = (JsonArray)request.getAttribute("allFiles");
@@ -39,6 +54,9 @@
                              </tbody>
                          </table>
                          <% } %>
+                     </td>
+                     <td>
+                         <%=results.getJsonObject(i).getString("size") %>
                      </td>
                      <td align="center"><span id="delete"><a id="downloadLink" class="hyperLink" href='<%=request.getContextPath()%>/delete?tagName=<%=results.getJsonObject(i).getString("name")%>'>Delete</a></span></td>
                   </tr>
