@@ -6,8 +6,8 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Result Upload Servlet</title>
-
         <link rel="stylesheet" href="resources/css/main.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
     <body>
         <div class="panel">
@@ -38,8 +38,8 @@
                   %>
                   <tr>
                      <td align="center"><a id="tagName" class="hyperLink" href='<%=results.getJsonObject(i).getString("allureURL")%>'><%=results.getJsonObject(i).getString("name") %></a></td>
-                     <td align="center"><span id="fileSize"><%=new java.sql.Date(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
-                     <td>
+                     <td align="center"><span id="fileSize"><%=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
+                     <td align="center">
                         <%
                          JsonObject status = results.getJsonObject(i).getJsonObject("status");
                             if(status != null && status.size() > 0) {
@@ -55,10 +55,10 @@
                          </table>
                          <% } %>
                      </td>
-                     <td>
+                     <td align="center">
                          <%=results.getJsonObject(i).getString("size") %>
                      </td>
-                     <td align="center"><span id="delete"><a id="downloadLink" class="hyperLink" href='<%=request.getContextPath()%>/delete?tagName=<%=results.getJsonObject(i).getString("name")%>'>Delete</a></span></td>
+                      <td align="center"><span id="delete"><button onclick="delete_report(this)" value='<%=results.getJsonObject(i).getString("name")%>'>Delete</button></span></td>
                   </tr>
                   <% }
                    } else { %>
@@ -72,5 +72,13 @@
                <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
             </div>
          </div>
+        <script>
+            function delete_report(btn) {
+                $.post('/kdash/delete', { tagName: btn.value },
+                    function(data){
+                        location.reload();
+                });
+            }
+        </script>
      </body>
 </html>
