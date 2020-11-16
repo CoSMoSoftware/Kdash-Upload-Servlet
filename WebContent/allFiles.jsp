@@ -10,6 +10,9 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
     <body>
+    <%
+        int start = (int)request.getAttribute("start");
+    %>
         <div class="panel">
             <h1>Uploaded Results</h1>
             <table class="bordered_table">
@@ -68,6 +71,10 @@
                   <% } %>
                </tbody>
             </table>
+            <div class="margin_top_15px">
+                <a href='?start=<%=start-10%>'><<</a>
+                <a href='?start=<%=start+10%>'>>></a>
+            </div>
             <div class="margin_top_15px">
                <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
             </div>

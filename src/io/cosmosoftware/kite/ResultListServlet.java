@@ -32,6 +32,13 @@ public class ResultListServlet extends HttpServlet {
     String osName = System.getProperty("os.name").toLowerCase();
     File allureDirectory;
     String json = request.getParameter("json");
+    String startString = request.getParameter("start");
+    if(startString == null || startString.contains("-")) {
+      startString = "0";
+    }
+    int start = Integer.parseInt(startString);
+    int perPage = 10;
+
     if (osName.indexOf("win") >= 0) {
       allureDirectory = new File("C:\\nginx\\html\\allure\\");
     } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
@@ -50,7 +57,15 @@ public class ResultListServlet extends HttpServlet {
     JsonObjectBuilder statBuilder = Json.createObjectBuilder();
     String[] bannedFolders = new String[]{"plugins", "data", "index.html", "favicon.ico", "history", "widgets", "styles.css", "app.js", "export"};
 
-    for (File result: resultList) {
+    if(start > resultList.length) {
+      start = start - perPage;
+      if (start < 0) {
+        start = 0;
+      }
+    }
+
+    for (int i = start; i < resultList.length && i - start < perPage; i++) {
+      File result = resultList[i];
       if(!Arrays.stream(bannedFolders).anyMatch(result.getName()::equals)) {
         JsonObject status = Utils.countStatus(result.getAbsolutePath());
         JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
@@ -70,6 +85,7 @@ public class ResultListServlet extends HttpServlet {
     if(json == null) {
       request.setAttribute("allFiles", arrayBuilder.build());
       request.setAttribute("stats", statBuilder.build());
+      request.setAttribute("start", start);
       RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
       dispatcher.forward(request, response);
     } else {
