@@ -38,7 +38,7 @@ public class ResultListServlet extends HttpServlet {
       startString = "0";
     }
     int start = Integer.parseInt(startString);
-    int perPage = 10;
+    int perPage = 100;
 
     if (osName.indexOf("win") >= 0) {
       allureDirectory = new File("C:\\nginx\\html\\allure\\");

@@ -13,20 +13,23 @@
     <%
         int start = (int)request.getAttribute("start");
         String tagName = (String)request.getAttribute("tagName");
+        JsonObject stats = (JsonObject)request.getAttribute("stats");
         String tagNamePlaceHolder = "";
         if(tagName != null) {
             tagNamePlaceHolder = tagName;
         }
+        int currentPage = start / 100 + 1;
     %>
         <div class="panel">
             <h1>Uploaded Results</h1>
+            <div class="margin_top_15px">
+                <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
+            </div>
             <table class="bordered_table">
                 <thead>
                 <tr align="center"><th>Number of reports</th><th>Free Storage</th><th>Used Storage</th></tr>
                 </thead>
                 <tbody>
-                <%  JsonObject stats = (JsonObject)request.getAttribute("stats");
-                %>
                 <tr>
                     <td align="center"><span> <%=stats.getInt("foldersCount") %></span></td>
                     <td align="center"><span> <%=stats.getString("freeSpace") %></span></td>
@@ -34,7 +37,27 @@
                 </tr>
                 </tbody>
             </table>
+            <div class="margin_top_15px">
+                Filter by tag name <input type ="text" id="tagNameid"  value="<%= tagNamePlaceHolder %>"  />
+                <button onclick="filterTagName()">Send</button>
+                <button onclick="unfilterTagName()">Clear</button>
+            </div>
+            <div class="margin_top_15px">
 
+                <% if(tagName == null) { %>
+                <a href='?start=0'>First</a>
+                <a href='?start=<%=start-100%>'><<</a>
+                <span><%=currentPage %></span>
+                <a href='?start=<%=start+100%>'>>></a>
+                <a href='?start=<%=stats.getInt("foldersCount") - 100 %>'>Last</a>
+                <% } else { %>
+                <a href='?start=0&tagName=<%=tagName%>'>First</a>
+                <a href='?start=<%=start-100%>&tagName=<%=tagName%>'><<</a>
+                <span><%=currentPage %></span>
+                <a href='?start=<%=start+100%>&tagName=<%=tagName%>'>>></a>
+                <a href='?start=<%=stats.getInt("foldersCount") - 100 %>&tagName=<%=tagName%>'>Last</a>
+                <% } %>
+            </div>
             <table class="bordered_table">
                <thead>
                <tr align="center"><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Size</th></th><th>Action</th></tr>
@@ -76,24 +99,6 @@
                   <% } %>
                </tbody>
             </table>
-            <div class="margin_top_15px">
-                Filter by tag name <input type ="text" id="tagNameid"  value="<%= tagNamePlaceHolder %>"  />
-                <button onclick="filterTagName()">Send</button>
-                <button onclick="unfilterTagName()">Clear</button>
-
-            </div>
-            <div class="margin_top_15px">
-                <% if(tagName == null) { %>
-                <a href='?start=<%=start-10%>'><<</a>
-                <a href='?start=<%=start+10%>'>>></a>
-                <% } else { %>
-                <a href='?start=<%=start-10%>&tagName=<%=tagName%>'><<</a>
-                <a href='?start=<%=start+10%>&tagName=<%=tagName%>'>>></a>
-                <% } %>
-            </div>
-            <div class="margin_top_15px">
-               <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
-            </div>
          </div>
         <script>
             function delete_report(btn) {
