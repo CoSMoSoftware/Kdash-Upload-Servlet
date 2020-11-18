@@ -12,6 +12,11 @@
     <body>
     <%
         int start = (int)request.getAttribute("start");
+        String tagName = (String)request.getAttribute("tagName");
+        String tagNamePlaceHolder = "";
+        if(tagName != null) {
+            tagNamePlaceHolder = tagName;
+        }
     %>
         <div class="panel">
             <h1>Uploaded Results</h1>
@@ -72,8 +77,19 @@
                </tbody>
             </table>
             <div class="margin_top_15px">
+                Filter by tag name <input type ="text" id="tagNameid"  value="<%= tagNamePlaceHolder %>"  />
+                <button onclick="filterTagName()">Send</button>
+                <button onclick="unfilterTagName()">Clear</button>
+
+            </div>
+            <div class="margin_top_15px">
+                <% if(tagName == null) { %>
                 <a href='?start=<%=start-10%>'><<</a>
                 <a href='?start=<%=start+10%>'>>></a>
+                <% } else { %>
+                <a href='?start=<%=start-10%>&tagName=<%=tagName%>'><<</a>
+                <a href='?start=<%=start+10%>&tagName=<%=tagName%>'>>></a>
+                <% } %>
             </div>
             <div class="margin_top_15px">
                <a id="fileUpload" class="hyperLink" href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
@@ -85,6 +101,14 @@
                     function(data){
                         location.reload();
                 });
+            }
+            function filterTagName() {
+               let value = document.getElementById('tagNameid').value;
+               location.href= "?tagName=" + value;
+            }
+            function unfilterTagName() {
+               let value = document.getElementById('tagNameid').value;
+               location.href= "?";
             }
         </script>
      </body>

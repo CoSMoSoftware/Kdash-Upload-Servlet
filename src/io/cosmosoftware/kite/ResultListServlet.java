@@ -33,6 +33,7 @@ public class ResultListServlet extends HttpServlet {
     File allureDirectory;
     String json = request.getParameter("json");
     String startString = request.getParameter("start");
+    String tagName = request.getParameter("tagName");
     if(startString == null || startString.contains("-")) {
       startString = "0";
     }
@@ -49,9 +50,14 @@ public class ResultListServlet extends HttpServlet {
               "Only Windows and Linux are supported.");
       return;
     }
+    File[] resultList;
 
-
-    File[] resultList = allureDirectory.listFiles();
+    if(tagName != null) {
+      FilenameFilter filter = (dir, name) -> name.contains(tagName);
+      resultList = allureDirectory.listFiles(filter);
+    } else {
+      resultList = allureDirectory.listFiles();
+    }
     Arrays.sort(resultList, Comparator.comparingLong(File::lastModified).reversed());
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
     JsonObjectBuilder statBuilder = Json.createObjectBuilder();
@@ -86,6 +92,7 @@ public class ResultListServlet extends HttpServlet {
       request.setAttribute("allFiles", arrayBuilder.build());
       request.setAttribute("stats", statBuilder.build());
       request.setAttribute("start", start);
+      request.setAttribute("tagName", tagName);
       RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
       dispatcher.forward(request, response);
     } else {
