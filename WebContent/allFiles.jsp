@@ -54,7 +54,7 @@
             </table>
             <div class="margin_top_15px">
                 Filter by tag name <input type ="text" id="tagNameid"  value="<%= tagNamePlaceHolder %>"  />
-                <button onclick="filterTagName()">Send</button>
+                <button onclick="filterTagName()">Apply</button>
                 <button onclick="unfilterTagName()">Clear</button>
             </div>
             <div class="margin_top_15px">
@@ -90,7 +90,7 @@
                     </div>
                 </div>
                 <div style="display:inline-block">
-                    <button onclick="filterStatus()">Send</button>
+                    <button onclick="filterStatus()">Apply</button>
                     <button onclick="unfilterStatus()">Clear</button>
                 </div>
             </div>
@@ -109,10 +109,11 @@
                 <a href='?start=<%=start+100%>&tagName=<%=tagName%>&<%=statusParams%>'>>></a>
                 <a href='?start=<%=stats.getInt("foldersCount") - 100 %>&tagName=<%=tagName%>&<%=statusParams%>'>Last</a>
                 <% } %>
+                <span>(Showing 100 results)</span>
             </div>
             <table class="bordered_table">
                <thead>
-               <tr align="center"><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Size</th></th><th>Action</th></tr>
+               <tr align="center"><th style="width:100px"></th><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Size</th></th><th>Action</th></tr>
                </thead>
                <tbody>
                  <%  JsonArray results = (JsonArray)request.getAttribute("allFiles");
@@ -120,6 +121,7 @@
                        for(int i=0; i<results.size(); i++) {
                   %>
                   <tr>
+                     <td align="center"><%=start+i+1%></td>
                      <td align="center"><a id="tagName" class="hyperLink" href='<%=results.getJsonObject(i).getString("allureURL")%>'><%=results.getJsonObject(i).getString("name") %></a></td>
                      <td align="center"><span id="fileSize"><%=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
                      <td align="center">
