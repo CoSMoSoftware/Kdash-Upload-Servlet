@@ -7,6 +7,7 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -264,5 +265,38 @@ public class Utils {
     } catch (Exception e) {
     }
     return jsonBuilder.build();
+  }
+
+  public static boolean isReport(String filePath, ArrayList<String> statusFilters) {
+    String allureDirectory = null;
+    String osName = System.getProperty("os.name").toLowerCase();
+    if (osName.indexOf("win") >= 0) {
+      allureDirectory = filePath + "\\data\\test-cases\\";
+    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+      allureDirectory = filePath + "/data/test-cases/";
+    }
+    File allureFolder = new File(allureDirectory);
+    Map<String, Integer> countCases = new HashMap<String, Integer>();
+    try {
+      for (File subFile : allureFolder.listFiles()) {
+        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
+        for(String status: statusFilters) {
+          if(result.getString("status").equals(status)) {
+            return true;
+          }
+        }
+      }
+    } catch (Exception e) {
+    }
+    return false;
+  }
+
+  public static String readableFileSize(long size) {
+    if(size <= 0) {
+      return "0";
+    }
+    final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
+    int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
   }
 }
