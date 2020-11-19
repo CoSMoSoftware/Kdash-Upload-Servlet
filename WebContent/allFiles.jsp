@@ -13,6 +13,21 @@
     <%
         int start = (int)request.getAttribute("start");
         String tagName = (String)request.getAttribute("tagName");
+        boolean failed = request.getAttribute("failed") == null ? false : request.getAttribute("failed").equals("true");
+        boolean broken = request.getAttribute("broken") == null ? false : request.getAttribute("broken").equals("true");
+        boolean passed = request.getAttribute("passed") == null ? false : request.getAttribute("passed").equals("true");
+
+        String statusParams = "";
+        if(failed) {
+            statusParams += "failed=true&";
+        }
+        if(broken) {
+            statusParams += "broken=true&";
+        }
+        if(passed) {
+            statusParams += "passed=true&";
+        }
+
         JsonObject stats = (JsonObject)request.getAttribute("stats");
         String tagNamePlaceHolder = "";
         if(tagName != null) {
@@ -43,19 +58,56 @@
                 <button onclick="unfilterTagName()">Clear</button>
             </div>
             <div class="margin_top_15px">
+                <div style="display:inline-block">
+                Filter by status
+                    <div>
+                        <% if(passed) { %>
+                            <input type="checkbox" id="passedid" name="status" value="passed"
+                                   checked>
+                        <% } else { %>
+                            <input type="checkbox" id="passedid" name="status" value="passed">
+                        <% } %>
+
+                        <label for="passedid">Passed</label>
+                    </div>
+                    <div>
+                        <% if(failed) { %>
+                        <input type="checkbox" id="failedid" name="status" value="failed"
+                               checked>
+                        <% } else { %>
+                        <input type="checkbox" id="failedid" name="status" value="failed">
+                        <% } %>
+                        <label for="failedid">Failed</label>
+                    </div>
+                    <div>
+                        <% if(broken) { %>
+                        <input type="checkbox" id="brokenid" name="status" value="broken"
+                               checked>
+                        <% } else { %>
+                        <input type="checkbox" id="brokenid" name="status" value="broken">
+                        <% } %>
+                        <label for="brokenid">Broken</label>
+                    </div>
+                </div>
+                <div style="display:inline-block">
+                    <button onclick="filterStatus()">Send</button>
+                    <button onclick="unfilterStatus()">Clear</button>
+                </div>
+            </div>
+            <div class="margin_top_15px">
 
                 <% if(tagName == null) { %>
-                <a href='?start=0'>First</a>
-                <a href='?start=<%=start-100%>'><<</a>
+                <a href='?start=0&<%=statusParams%>'>First</a>
+                <a href='?start=<%=start-100%>&<%=statusParams%>'><<</a>
                 <span><%=currentPage %></span>
-                <a href='?start=<%=start+100%>'>>></a>
-                <a href='?start=<%=stats.getInt("foldersCount") - 100 %>'>Last</a>
+                <a href='?start=<%=start+100%>&<%=statusParams%>'>>></a>
+                <a href='?start=<%=stats.getInt("foldersCount") - ( stats.getInt("foldersCount") % 100 ) %>&<%=statusParams%>'>Last</a>
                 <% } else { %>
-                <a href='?start=0&tagName=<%=tagName%>'>First</a>
-                <a href='?start=<%=start-100%>&tagName=<%=tagName%>'><<</a>
+                <a href='?start=0&tagName=<%=tagName%>&<%=statusParams%>'>First</a>
+                <a href='?start=<%=start-100%>&tagName=<%=tagName%>&<%=statusParams%>'><<</a>
                 <span><%=currentPage %></span>
-                <a href='?start=<%=start+100%>&tagName=<%=tagName%>'>>></a>
-                <a href='?start=<%=stats.getInt("foldersCount") - 100 %>&tagName=<%=tagName%>'>Last</a>
+                <a href='?start=<%=start+100%>&tagName=<%=tagName%>&<%=statusParams%>'>>></a>
+                <a href='?start=<%=stats.getInt("foldersCount") - 100 %>&tagName=<%=tagName%>&<%=statusParams%>'>Last</a>
                 <% } %>
             </div>
             <table class="bordered_table">
@@ -107,13 +159,33 @@
                         location.reload();
                 });
             }
+
             function filterTagName() {
                let value = document.getElementById('tagNameid').value;
-               location.href= "?tagName=" + value;
+               location.href= "?tagName=" + value + "&" +( "<%=statusParams%>" == null ? "": "<%=statusParams%>") ;
             }
+
             function unfilterTagName() {
                let value = document.getElementById('tagNameid').value;
-               location.href= "?";
+               location.href= "?" + ( "<%=statusParams%>" == null ? "": "<%=statusParams%>");
+            }
+
+            function filterStatus() {
+               let params = "?";
+               if(document.getElementById('passedid').checked) {
+                    params += "passed=true&";
+               }
+               if(document.getElementById('brokenid').checked) {
+                    params += "broken=true&";
+               }
+               if(document.getElementById('failedid').checked) {
+                    params += "failed=true&"
+               }
+               location.href= params + ("<%=tagName%>" == "null" ? "": "tagName=<%=tagName%>");
+            }
+
+            function unfilterStatus() {
+                location.href= ("<%=tagName%>" == "null" ? "?": "?tagName=<%=tagName%>");
             }
         </script>
      </body>

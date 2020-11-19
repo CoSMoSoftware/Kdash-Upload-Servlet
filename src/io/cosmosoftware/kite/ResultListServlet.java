@@ -2,8 +2,7 @@ package io.cosmosoftware.kite;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
 import javax.json.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -34,6 +33,20 @@ public class ResultListServlet extends HttpServlet {
     String json = request.getParameter("json");
     String startString = request.getParameter("start");
     String tagName = request.getParameter("tagName");
+    ArrayList<String> statusFilters = new ArrayList<String>();
+    String failed = request.getParameter("failed");
+    String passed = request.getParameter("passed");
+    String broken = request.getParameter("broken");
+
+    if(failed != null && failed.equals("true")) {
+      statusFilters.add("failed");
+    }
+    if(passed != null && passed.equals("true")) {
+      statusFilters.add("passed");
+    }
+    if(broken != null && broken.equals("true")) {
+      statusFilters.add("broken");
+    }
     if(startString == null || startString.contains("-")) {
       startString = "0";
     }
@@ -51,12 +64,21 @@ public class ResultListServlet extends HttpServlet {
       return;
     }
     File[] resultList;
-
+    FilenameFilter filter;
     if(tagName != null) {
-      FilenameFilter filter = (dir, name) -> name.contains(tagName);
+      if(statusFilters.size() == 0) {
+        filter = (dir, name) -> name.contains(tagName);
+      } else {
+        filter = (dir, name) -> name.contains(tagName) && Utils.isReport(allureDirectory + (osName.indexOf("win") >= 0 ? "\\" : "/") + name, statusFilters);
+      }
       resultList = allureDirectory.listFiles(filter);
     } else {
-      resultList = allureDirectory.listFiles();
+      if(statusFilters.size() == 0) {
+        resultList = allureDirectory.listFiles();
+      } else {
+        filter = (dir, name) ->  Utils.isReport(allureDirectory + (osName.indexOf("win") >= 0 ? "\\" : "/") + name, statusFilters);
+        resultList = allureDirectory.listFiles(filter);
+      }
     }
     Arrays.sort(resultList, Comparator.comparingLong(File::lastModified).reversed());
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
@@ -93,6 +115,10 @@ public class ResultListServlet extends HttpServlet {
       request.setAttribute("stats", statBuilder.build());
       request.setAttribute("start", start);
       request.setAttribute("tagName", tagName);
+      request.setAttribute("failed", failed);
+      request.setAttribute("passed", passed);
+      request.setAttribute("broken", broken);
+
       RequestDispatcher dispatcher = request.getRequestDispatcher("/allFiles.jsp");
       dispatcher.forward(request, response);
     } else {
