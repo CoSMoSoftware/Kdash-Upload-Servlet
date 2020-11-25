@@ -1,4 +1,7 @@
 package io.cosmosoftware.kite;
+import static io.cosmosoftware.kite.Utils.isLinuxBased;
+import static io.cosmosoftware.kite.Utils.isWindowsBased;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -28,7 +31,6 @@ public class ResultListServlet extends HttpServlet {
   }
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-    String osName = System.getProperty("os.name").toLowerCase();
     File allureDirectory;
     String json = request.getParameter("json");
     String startString = request.getParameter("start");
@@ -53,9 +55,9 @@ public class ResultListServlet extends HttpServlet {
     int start = Integer.parseInt(startString);
     int perPage = 100;
 
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = new File("C:\\nginx\\html\\allure\\");
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = new File("/var/www/allure/");
     } else {
       response.sendError(
@@ -64,21 +66,9 @@ public class ResultListServlet extends HttpServlet {
       return;
     }
     File[] resultList;
-    FilenameFilter filter;
-    if(tagName != null) {
-      if(statusFilters.size() == 0) {
-        filter = (dir, name) -> name.contains(tagName);
-      } else {
-        filter = (dir, name) -> name.contains(tagName) && Utils.isReport(allureDirectory + (osName.indexOf("win") >= 0 ? "\\" : "/") + name, statusFilters);
-      }
-      resultList = allureDirectory.listFiles(filter);
-    } else {
-      if(statusFilters.size() == 0) {
-        resultList = allureDirectory.listFiles();
-      } else {
-        filter = (dir, name) ->  Utils.isReport(allureDirectory + (osName.indexOf("win") >= 0 ? "\\" : "/") + name, statusFilters);
-        resultList = allureDirectory.listFiles(filter);
-      }
+    resultList = allureDirectory.listFiles(getFilter(allureDirectory, tagName, statusFilters));
+    if (resultList == null) {
+      resultList = new File[0];
     }
     Arrays.sort(resultList, Comparator.comparingLong(File::lastModified).reversed());
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
@@ -128,6 +118,12 @@ public class ResultListServlet extends HttpServlet {
       response.getWriter().print(arrayBuilder.build().toString());
       response.getWriter().flush();
     }
+  }
+
+  private FilenameFilter getFilter(File path, String tagName, ArrayList<String> statusFilters) {
+    return (dir, name) ->
+        name.contains(tagName == null ? "" : tagName)
+            && (statusFilters.isEmpty() || Utils.isReport(path + (isWindowsBased() ? "\\" : "/") + name, statusFilters));
   }
 
 }

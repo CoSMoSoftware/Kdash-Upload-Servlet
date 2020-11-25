@@ -1,5 +1,8 @@
 package io.cosmosoftware.kite;
 
+import static io.cosmosoftware.kite.Utils.isLinuxBased;
+import static io.cosmosoftware.kite.Utils.isWindowsBased;
+
 import javax.json.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -28,10 +31,9 @@ public class CheckResultStatusServlet extends HttpServlet {
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String allureDirectory;
     String tagName = request.getParameter("tagName");
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = "/var/www/allure/" + tagName;
     } else {
       response.sendError(

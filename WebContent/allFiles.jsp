@@ -123,7 +123,7 @@
                   <tr>
                      <td align="center"><%=start+i+1%></td>
                      <td align="center"><a id="tagName" class="hyperLink" href='<%=results.getJsonObject(i).getString("allureURL")%>'><%=results.getJsonObject(i).getString("name") %></a></td>
-                     <td align="center"><span id="fileSize"><%=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
+                     <td align="center"><span id="fileSize"><%=new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(results.getJsonObject(i).getJsonNumber("lastModified").longValue())  %></span></td>
                      <td align="center">
                         <%
                          JsonObject status = results.getJsonObject(i).getJsonObject("status");
@@ -140,9 +140,7 @@
                          </table>
                          <% } %>
                      </td>
-                     <td align="center">
-                         <%=results.getJsonObject(i).getString("size") %>
-                     </td>
+                     <td align="center"><%=results.getJsonObject(i).getString("size") %></td>
                       <td align="center"><span id="delete"><button onclick="delete_report(this)" value='<%=results.getJsonObject(i).getString("name")%>'>Delete</button></span></td>
                   </tr>
                   <% }

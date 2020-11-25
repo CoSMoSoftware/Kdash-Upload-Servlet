@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
-
   public Utils() {
 
   }
@@ -221,9 +220,9 @@ public class Utils {
   public static JsonArray checkStatus(String filePath) {
     String allureDirectory = null;
     String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = filePath + "/data/test-cases/";
     }
     File allureFolder = new File(allureDirectory);
@@ -244,9 +243,9 @@ public class Utils {
   public static JsonObject countStatus(String filePath) {
     String allureDirectory = null;
     String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = filePath + "/data/test-cases/";
     }
     File allureFolder = new File(allureDirectory);
@@ -270,13 +269,12 @@ public class Utils {
   public static boolean isReport(String filePath, ArrayList<String> statusFilters) {
     String allureDirectory = null;
     String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = filePath + "/data/test-cases/";
     }
     File allureFolder = new File(allureDirectory);
-    Map<String, Integer> countCases = new HashMap<String, Integer>();
     try {
       for (File subFile : allureFolder.listFiles()) {
         JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
@@ -298,5 +296,15 @@ public class Utils {
     final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
     int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
     return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+  }
+
+  public static boolean isWindowsBased() {
+    String osName = System.getProperty("os.name").toLowerCase();
+    return osName.contains("win");
+  }
+
+  public static boolean isLinuxBased() {
+    String osName = System.getProperty("os.name").toLowerCase();
+    return osName.contains("nix") || osName.contains("nux") || osName.contains("aix");
   }
 }
