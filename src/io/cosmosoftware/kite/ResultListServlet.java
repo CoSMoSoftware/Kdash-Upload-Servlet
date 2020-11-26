@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 )
 public class ResultListServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
+  private static final int MAX_FILE_COUNT = 5000;
   public ResultListServlet() {
   }
 
@@ -32,10 +33,11 @@ public class ResultListServlet extends HttpServlet {
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     File allureDirectory;
+    long startTime = System.currentTimeMillis();
     String json = request.getParameter("json");
     String startString = request.getParameter("start");
     String tagName = request.getParameter("tagName");
-    ArrayList<String> statusFilters = new ArrayList<String>();
+    ArrayList<String> statusFilters = new ArrayList<>();
     String failed = request.getParameter("failed");
     String passed = request.getParameter("passed");
     String broken = request.getParameter("broken");
@@ -81,24 +83,36 @@ public class ResultListServlet extends HttpServlet {
         start = 0;
       }
     }
-
-    for (int i = start; i < resultList.length && i - start < perPage; i++) {
+    HashMap<String, Integer> overAllStatus = new HashMap<>();
+    for (int i = start; i < resultList.length && i < MAX_FILE_COUNT; i++) {
       File result = resultList[i];
-      if(!Arrays.stream(bannedFolders).anyMatch(result.getName()::equals)) {
-        JsonObject status = Utils.countStatus(result.getAbsolutePath());
-        JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
-        fileJsonBuilder.add("status", status);
-        fileJsonBuilder.add("name", result.getName());
-        fileJsonBuilder.add("lastModified", result.lastModified());
-        fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
-        fileJsonBuilder.add("allureURL", "https://" + request.getServerName() + "/" + result.getName());
-        arrayBuilder.add(fileJsonBuilder.build());
+      JsonObject status = Utils.countStatus(result.getAbsolutePath());
+      for (String key : status.keySet()) {
+        if (!overAllStatus.containsKey(key)) {
+          overAllStatus.put(key, 0);
+        }
+        overAllStatus.put(key, overAllStatus.get(key) + status.getInt(key));
+      }
+      if (Arrays.stream(bannedFolders).noneMatch(result.getName()::equals)) {
+        if(i - start < perPage) {
+          JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
+          fileJsonBuilder.add("status", status);
+          fileJsonBuilder.add("name", result.getName());
+          fileJsonBuilder.add("lastModified", result.lastModified());
+          fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
+          fileJsonBuilder
+              .add("allureURL", "https://" + request.getServerName() + "/" + result.getName());
+          arrayBuilder.add(fileJsonBuilder.build());
+        }
       }
     }
-
+    for (String key: overAllStatus.keySet()) {
+      statBuilder.add(key, overAllStatus.get(key));
+    }
     statBuilder.add("foldersCount", resultList.length);
-    statBuilder.add("usedSpace", Utils.readableFileSize(FileUtils.sizeOfDirectory(allureDirectory)));
+//    statBuilder.add("usedSpace", Utils.readableFileSize(FileUtils.sizeOfDirectory(allureDirectory)));
     statBuilder.add("freeSpace", Utils.readableFileSize(allureDirectory.getFreeSpace()));
+    statBuilder.add("processTime", System.currentTimeMillis() - startTime);
 
     if(json == null) {
       request.setAttribute("allFiles", arrayBuilder.build());

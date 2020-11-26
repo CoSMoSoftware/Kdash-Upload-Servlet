@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
-   <display-name>KITE Dashboard Automate Servlet</display-name>
-   <servlet>
-      <servlet-name>FileUploadServlet</servlet-name>
-      <servlet-class>io.cosmosoftware.kite.test.FileUploadServlet</servlet-class>
-   </servlet>
-   <servlet>
-      <servlet-name>ResultListServlet</servlet-name>
-      <servlet-class>io.cosmosoftware.kite.test.ResultListServlet</servlet-class>
-   </servlet>
-   <servlet>
-      <servlet-name>DeleteResultServlet</servlet-name>
-      <servlet-class>io.cosmosoftware.kite.test.DeleteResultServlet</servlet-class>
-   </servlet>
-   <servlet>
-      <servlet-name>CleanUpArchivesServlet</servlet-name>
-      <servlet-class>io.cosmosoftware.kite.test.CleanUpArchivesServlet</servlet-class>
-   </servlet>
-   <servlet>
-      <servlet-name>CheckResultStatusServlet</servlet-name>
-      <servlet-class>io.cosmosoftware.kite.test.CheckResultStatusServlet</servlet-class>
-   </servlet>
-   <display-name>Result Upload Servlet</display-name>
-   <welcome-file-list>
-      <welcome-file>index.jsp</welcome-file>
-   </welcome-file-list>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="3.1"
+  xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+  <display-name>KITE Dashboard Automate Servlet</display-name>
+  <display-name>Result Upload Servlet</display-name>
+  <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.ResultListServlet</servlet-class>
+    <servlet-name>ResultListServlet</servlet-name>
+  </servlet>
+  <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.DeleteResultServlet</servlet-class>
+    <servlet-name>DeleteResultServlet</servlet-name>
+  </servlet>
+  <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.CleanUpArchivesServlet</servlet-class>
+    <servlet-name>CleanUpArchivesServlet</servlet-name>
+  </servlet>
+  <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.CheckResultStatusServlet</servlet-class>
+    <servlet-name>CheckResultStatusServlet</servlet-name>
+  </servlet>
+  <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.FileUploadServlet</servlet-class>
+    <servlet-name>FileUploadServlet</servlet-name>
+  </servlet>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
 </web-app>

@@ -149,7 +149,7 @@ public class Utils {
   }
 
   public static String executeCommand(String[] command)
-          throws IOException, InterruptedException, IllegalArgumentException {
+          throws IOException, IllegalArgumentException {
     ProcessBuilder processBuilder = new ProcessBuilder(command);
     processBuilder.redirectErrorStream(true);
     System.out.println("*** Executing: ");
@@ -218,13 +218,7 @@ public class Utils {
   }
 
   public static JsonArray checkStatus(String filePath) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (isWindowsBased()) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (isLinuxBased()) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\test-cases\\" : "/data/test-cases/");
     File allureFolder = new File(allureDirectory);
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
     try {
@@ -241,51 +235,56 @@ public class Utils {
   }
 
   public static JsonObject countStatus(String filePath) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (isWindowsBased()) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (isLinuxBased()) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
-    File allureFolder = new File(allureDirectory);
     JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-    Map<String, Integer> countCases = new HashMap<String, Integer>();
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\" : "/data/");
     try {
-      for (File subFile : allureFolder.listFiles()) {
-        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
-        countCases.merge(result.getString("status"), 1, Integer::sum);
+      File file=new File(allureDirectory + "suites.csv");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] bytesArray = new byte[(int)file.length()];
+      fis.read(bytesArray);
+      String s = new String(bytesArray);
+      String [] passed = s.split("\"passed\"");
+      jsonBuilder.add("passed", passed.length - 1);
+
+      String [] failed = s.split("\"failed\"");
+      if (failed.length > 1) {
+        jsonBuilder.add("failed", failed.length - 1);
       }
-      Map<String, Integer> reverseSortedMap = new TreeMap<String, Integer>(Collections.reverseOrder());
-      reverseSortedMap.putAll(countCases);
-      for (Map.Entry<String, Integer> entry : reverseSortedMap.entrySet()) {
-        jsonBuilder.add(entry.getKey(), entry.getValue());
+
+      String [] broken = s.split("\"broken\"");
+      if (broken.length > 1) {
+        jsonBuilder.add("broken", broken.length - 1);
       }
-    } catch (Exception e) {
+
     }
+    catch(IOException e)
+    {
+      System.out.println("Could not get stats from " + filePath + " -> " + e.getLocalizedMessage());
+    }
+
     return jsonBuilder.build();
   }
 
   public static boolean isReport(String filePath, ArrayList<String> statusFilters) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (isWindowsBased()) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (isLinuxBased()) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
-    File allureFolder = new File(allureDirectory);
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\" : "/data/");
     try {
-      for (File subFile : allureFolder.listFiles()) {
-        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
-        for(String status: statusFilters) {
-          if(result.getString("status").equals(status)) {
-            return true;
-          }
+      File file=new File(allureDirectory + "suites.csv");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] bytesArray = new byte[(int)file.length()];
+      fis.read(bytesArray);
+      String s = new String(bytesArray);
+      for (String status : statusFilters) {
+        String [] data = s.split("\"" + status + "\"");
+        if (data.length > 1) {
+          return true;
         }
       }
-    } catch (Exception e) {
     }
+    catch(IOException e)
+    {
+      System.out.println("Could not get stats from " + filePath + " -> " + e.getLocalizedMessage());
+    }
+
     return false;
   }
 
