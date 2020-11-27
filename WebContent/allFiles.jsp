@@ -1,5 +1,6 @@
 <%@page import="javax.json.JsonArray" %>
 <%@page import="javax.json.JsonObject" %>
+<%@page import="java.text.DecimalFormat" %>
 <%@page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -9,8 +10,8 @@
     <link rel="stylesheet" href="resources/css/bootstrap.css" />
     <link rel="stylesheet" href="resources/css/bootstrap-theme.css" />
     <link rel="stylesheet" href="resources/css/main.css" />
-    <script src="resources/js/bootstrap.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="resources/js/bootstrap.js"></script>
     <script src="resources/js/all-file.js"></script>
 
   </head>
@@ -42,7 +43,7 @@
       %>
     <div class="card">
       <div class="card-body">
-        <table id="storage" style="width:50%;">
+        <table id="storage" style="width:70%;">
           <tbody>
             <tr>
               <td align="left" style="border: none;">
@@ -57,7 +58,7 @@
               </td>
             </tr>
             <tr>
-              <td align="left">
+              <td align="left" style="border: none;">
 
                 <span> <b>Number of reports : </b><%=stats.getInt("foldersCount") %></span>
                 <br>
@@ -69,7 +70,7 @@
                 <button type="button" class="btn btn-link btn-sm" onclick="filterTagName()">Apply</button>
                 <button type="button" class="btn btn-link btn-sm" onclick="unfilterTagName()">Clear</button>
               </td>
-              <td align="left">
+              <td align="left" style="border: none;">
                 <b>Filter by status:</b>
                 <button type="button" class="btn btn-link btn-sm" onclick="filterStatus()">Apply</button>
                 <button type="button" class="btn btn-link btn-sm" onclick="unfilterStatus()">Clear</button>
@@ -78,57 +79,61 @@
                   int failedCnt = stats.getInt("failed", 0);
                   int brokenCnt = stats.getInt("broken", 0);
                   int totalCnt = passedCnt + failedCnt + brokenCnt;
+                  if (totalCnt == 0){
+                    totalCnt =1;
+                  }
+                  DecimalFormat df = new DecimalFormat("0.00");
                 %>
                 <div class="row">
-                  <div class="col-3">
+                  <div class="col-4">
                     <% if(passed) { %>
                     <input type="checkbox" id="passedid" name="status" value="passed" checked>
                     <% } else { %>
                     <input type="checkbox" id="passedid" name="status" value="passed">
                     <% } %>
-                    <label for="passedid">Passed</label>
+                    <label for="passedid">Passed (<%=df.format((double)100*passedCnt/totalCnt)%>%)</label>
                   </div>
-                  <div class="col-9">
+                  <div class="col-8">
                     <div class="progress">
                       <div class="progress-bar bg-success progress-bar-striped"
-                      style="width:<%=100*passedCnt/totalCnt%>%" aria-valuenow=<%=passedCnt%> aria-valuemin="0" aria-valuemax=<%=totalCnt%>>
-                        <%=100*passedCnt/totalCnt%>%
+                      style="width:<%=df.format((double)100*passedCnt/totalCnt)%>%" aria-valuenow=<%=passedCnt%> aria-valuemin="0" aria-valuemax=<%=totalCnt%>>
+                        <%=df.format((double)100*passedCnt/totalCnt)%>%
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-3">
+                  <div class="col-4">
                     <% if(failed) { %>
                     <input type="checkbox" id="failedid" name="status" value="failed" checked>
                     <% } else { %>
                     <input type="checkbox" id="failedid" name="status" value="failed">
                     <% } %>
-                    <label for="failedid">Failed</label>
+                    <label for="failedid">Failed (<%=df.format((double)100*failedCnt/totalCnt)%>%)</label>
                   </div>
-                  <div class="col-9">
+                  <div class="col-8">
                     <div class="progress">
                       <div class="progress-bar bg-danger progress-bar-striped"
                       style="width:<%=100*failedCnt/totalCnt%>%" aria-valuenow=<%=failedCnt%> aria-valuemin="0" aria-valuemax=<%=totalCnt%>>
-                        <%=100*failedCnt/totalCnt%>%
+                        <%=df.format((double)100*failedCnt/totalCnt)%>%
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="row">
-                  <div class="col-3">
+                  <div class="col-4">
                     <% if(broken) { %>
                     <input type="checkbox" id="brokenid" name="status" value="broken" checked>
                     <% } else { %>
                     <input type="checkbox" id="brokenid" name="status" value="broken">
                     <% } %>
-                    <label for="brokenid">Broken</label>
+                    <label for="brokenid">Broken (<%=df.format((double)100*brokenCnt/totalCnt)%>%)</label>
                   </div>
-                  <div class="col-9">
+                  <div class="col-8">
                     <div class="progress">
                       <div class="progress-bar bg-warning progress-bar-striped"
                       style="width:<%=100*brokenCnt/totalCnt%>%" aria-valuenow=<%=brokenCnt%> aria-valuemin="0" aria-valuemax=<%=totalCnt%>>
-                        <%=100*brokenCnt/totalCnt%>%
+                        <%=df.format((double)100*brokenCnt/totalCnt)%>%
                       </div>
                     </div>
                   </div>
@@ -188,13 +193,12 @@
         <% }
           } else { %>
         <tr>
-        <td colspan="3" align="center"><span id="noFiles">No Files Uploaded.....!</span></td>
+        <td colspan="3" align="center"><span id="noFiles">No results found!</span></td>
         </tr>
         <% } %>
         </tbody>
       </table>
       </div>
     </div>
-    <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
   </body>
 </html>

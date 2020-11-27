@@ -244,7 +244,9 @@ public class Utils {
       fis.read(bytesArray);
       String s = new String(bytesArray);
       String [] passed = s.split("\"passed\"");
-      jsonBuilder.add("passed", passed.length - 1);
+      if (passed.length > 1) {
+        jsonBuilder.add("passed", passed.length - 1);
+      }
 
       String [] failed = s.split("\"failed\"");
       if (failed.length > 1) {
