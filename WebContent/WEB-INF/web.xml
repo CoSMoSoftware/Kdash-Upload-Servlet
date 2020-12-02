@@ -22,6 +22,10 @@
     <servlet-name>CheckResultStatusServlet</servlet-name>
   </servlet>
   <servlet>
+    <servlet-class>io.cosmosoftware.kite.test.GetLogFileServlet</servlet-class>
+    <servlet-name>GetLogFileServlet</servlet-name>
+  </servlet>
+  <servlet>
     <servlet-class>io.cosmosoftware.kite.test.FileUploadServlet</servlet-class>
     <servlet-name>FileUploadServlet</servlet-name>
   </servlet>

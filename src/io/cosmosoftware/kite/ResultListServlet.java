@@ -1,4 +1,5 @@
 package io.cosmosoftware.kite;
+import static io.cosmosoftware.kite.Utils.checkLogFilePath;
 import static io.cosmosoftware.kite.Utils.isLinuxBased;
 import static io.cosmosoftware.kite.Utils.isWindowsBased;
 
@@ -99,6 +100,8 @@ public class ResultListServlet extends HttpServlet {
           fileJsonBuilder.add("status", status);
           fileJsonBuilder.add("name", result.getName());
           fileJsonBuilder.add("lastModified", result.lastModified());
+          fileJsonBuilder.add("logs", checkLogFilePath(result.getName()));
+
           fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
           fileJsonBuilder
               .add("allureURL", "https://" + request.getServerName() + "/" + result.getName());

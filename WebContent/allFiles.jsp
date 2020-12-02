@@ -160,7 +160,15 @@
         </div>
         <table class="bordered_table">
         <thead>
-        <tr align="center"><th style="width:100px"></th><th>Tag Name</th><th>Last Update</th><th>Test Cases</th><th>Size</th></th><th>Action</th></tr>
+          <tr align="center">
+            <th style="width:100px"></th>
+            <th>Tag Name</th>
+            <th>Last Update</th>
+            <th>Test Cases</th>
+            <th>Logs</th>
+            <th>Size</th>
+            <th>Action</th>
+          </tr>
         </thead>
         <tbody>
           <%  JsonArray results = (JsonArray)request.getAttribute("allFiles");
@@ -187,6 +195,15 @@
               </table>
             <% } %>
           </td>
+          <td align="center">
+            <% if(results.getJsonObject(i).getString("logs", "No logs found").equals("No logs found")) { %>
+              No logs found
+            <% } else { %>
+              <a id="tagName" href='get-log?tagName=<%=results.getJsonObject(i).getString("name") %>&fileName=<%=results.getJsonObject(i).getString("logs", "null")%>'>
+                <%=results.getJsonObject(i).getString("logs")%>
+              </a>
+            <% }%>
+            </td>
           <td align="center"><%=results.getJsonObject(i).getString("size") %></td>
           <td align="center"><span id="delete"><button type="button" class="btn btn-danger btn-small" onclick="delete_report(this)" value='<%=results.getJsonObject(i).getString("name")%>'>Delete</button></span></td>
         </tr>

@@ -308,4 +308,18 @@ public class Utils {
     String osName = System.getProperty("os.name").toLowerCase();
     return osName.contains("nix") || osName.contains("nux") || osName.contains("aix");
   }
+
+  public static String checkLogFilePath(String resultName) {
+    String res = "No logs found";
+    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\kite-logs\\" : "/var/www/kite-logs/") + resultName;
+    File logFolder = new File(pathToLogFolder);
+    if (logFolder.exists()) {
+      for (File subFile : logFolder.listFiles()) {
+        if (subFile.isFile() && subFile.getName().endsWith(".log")) {
+          res = subFile.getName();
+        }
+      }
+    }
+    return res;
+  }
 }
