@@ -13,7 +13,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
-
   public Utils() {
 
   }
@@ -150,7 +149,7 @@ public class Utils {
   }
 
   public static String executeCommand(String[] command)
-          throws IOException, InterruptedException, IllegalArgumentException {
+          throws IOException, IllegalArgumentException {
     ProcessBuilder processBuilder = new ProcessBuilder(command);
     processBuilder.redirectErrorStream(true);
     System.out.println("*** Executing: ");
@@ -219,13 +218,7 @@ public class Utils {
   }
 
   public static JsonArray checkStatus(String filePath) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\test-cases\\" : "/data/test-cases/");
     File allureFolder = new File(allureDirectory);
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
     try {
@@ -242,52 +235,58 @@ public class Utils {
   }
 
   public static JsonObject countStatus(String filePath) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
-    File allureFolder = new File(allureDirectory);
     JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
-    Map<String, Integer> countCases = new HashMap<String, Integer>();
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\" : "/data/");
     try {
-      for (File subFile : allureFolder.listFiles()) {
-        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
-        countCases.merge(result.getString("status"), 1, Integer::sum);
+      File file=new File(allureDirectory + "suites.csv");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] bytesArray = new byte[(int)file.length()];
+      fis.read(bytesArray);
+      String s = new String(bytesArray);
+      String [] passed = s.split("\"passed\"");
+      if (passed.length > 1) {
+        jsonBuilder.add("passed", passed.length - 1);
       }
-      Map<String, Integer> reverseSortedMap = new TreeMap<String, Integer>(Collections.reverseOrder());
-      reverseSortedMap.putAll(countCases);
-      for (Map.Entry<String, Integer> entry : reverseSortedMap.entrySet()) {
-        jsonBuilder.add(entry.getKey(), entry.getValue());
+
+      String [] failed = s.split("\"failed\"");
+      if (failed.length > 1) {
+        jsonBuilder.add("failed", failed.length - 1);
       }
-    } catch (Exception e) {
+
+      String [] broken = s.split("\"broken\"");
+      if (broken.length > 1) {
+        jsonBuilder.add("broken", broken.length - 1);
+      }
+
     }
+    catch(IOException e)
+    {
+      System.out.println("Could not get stats from " + filePath + " -> " + e.getLocalizedMessage());
+    }
+
     return jsonBuilder.build();
   }
 
   public static boolean isReport(String filePath, ArrayList<String> statusFilters) {
-    String allureDirectory = null;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
-      allureDirectory = filePath + "\\data\\test-cases\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
-      allureDirectory = filePath + "/data/test-cases/";
-    }
-    File allureFolder = new File(allureDirectory);
-    Map<String, Integer> countCases = new HashMap<String, Integer>();
+    String allureDirectory = filePath + (isWindowsBased() ? "\\data\\" : "/data/");
     try {
-      for (File subFile : allureFolder.listFiles()) {
-        JsonObject result = Utils.readJsonFile(subFile.getAbsolutePath());
-        for(String status: statusFilters) {
-          if(result.getString("status").equals(status)) {
-            return true;
-          }
+      File file=new File(allureDirectory + "suites.csv");
+      FileInputStream fis = new FileInputStream(file);
+      byte[] bytesArray = new byte[(int)file.length()];
+      fis.read(bytesArray);
+      String s = new String(bytesArray);
+      for (String status : statusFilters) {
+        String [] data = s.split("\"" + status + "\"");
+        if (data.length > 1) {
+          return true;
         }
       }
-    } catch (Exception e) {
     }
+    catch(IOException e)
+    {
+      System.out.println("Could not get stats from " + filePath + " -> " + e.getLocalizedMessage());
+    }
+
     return false;
   }
 
@@ -298,5 +297,29 @@ public class Utils {
     final String[] units = new String[] { "B", "kB", "MB", "GB", "TB" };
     int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
     return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+  }
+
+  public static boolean isWindowsBased() {
+    String osName = System.getProperty("os.name").toLowerCase();
+    return osName.contains("win");
+  }
+
+  public static boolean isLinuxBased() {
+    String osName = System.getProperty("os.name").toLowerCase();
+    return osName.contains("nix") || osName.contains("nux") || osName.contains("aix");
+  }
+
+  public static String checkLogFilePath(String resultName) {
+    String res = "No logs found";
+    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\kite-logs\\" : "/var/www/kite-logs/") + resultName;
+    File logFolder = new File(pathToLogFolder);
+    if (logFolder.exists()) {
+      for (File subFile : logFolder.listFiles()) {
+        if (subFile.isFile() && subFile.getName().endsWith(".log")) {
+          res = subFile.getName();
+        }
+      }
+    }
+    return res;
   }
 }

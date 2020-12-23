@@ -1,5 +1,8 @@
 package io.cosmosoftware.kite;
 
+import static io.cosmosoftware.kite.Utils.isLinuxBased;
+import static io.cosmosoftware.kite.Utils.isWindowsBased;
+
 import java.io.*;
 import java.util.*;
 import javax.servlet.RequestDispatcher;
@@ -25,13 +28,10 @@ public class FileUploadServlet extends HttpServlet {
   }
 
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    try {
-      this.handleRequest(request, response);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    this.handleRequest(request, response);
   }
-  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, InterruptedException {
+
+  public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String applicationPath = this.getServletContext().getRealPath("");
     String tagName = request.getParameter("tagName");
     String json = request.getParameter("json");
@@ -41,11 +41,10 @@ public class FileUploadServlet extends HttpServlet {
     String[] command;
     String[] chmodCommand = null;
     String allureDirectory;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
       command = new String[]{"cmd.exe", "/C", "allure", "generate", unzipDirectory, "--output", allureDirectory};
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = "/var/www/allure/" + tagName;
       command = new String[]{"sudo", "allure", "generate", unzipDirectory, "--output", allureDirectory};
       // give nginx access

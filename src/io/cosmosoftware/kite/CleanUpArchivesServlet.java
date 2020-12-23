@@ -1,5 +1,8 @@
 package io.cosmosoftware.kite;
 
+import static io.cosmosoftware.kite.Utils.isLinuxBased;
+import static io.cosmosoftware.kite.Utils.isWindowsBased;
+
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +31,9 @@ public class CleanUpArchivesServlet extends HttpServlet {
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String archivedDirectory;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       archivedDirectory = "C:\\nginx\\html\\archives\\";
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       archivedDirectory = "/var/www/archives/";
     } else {
       response.sendError(

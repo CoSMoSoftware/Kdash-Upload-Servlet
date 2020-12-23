@@ -1,5 +1,8 @@
 package io.cosmosoftware.kite;
 
+import static io.cosmosoftware.kite.Utils.isLinuxBased;
+import static io.cosmosoftware.kite.Utils.isWindowsBased;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -32,11 +35,10 @@ public class DeleteResultServlet extends HttpServlet {
     long timeStamp = System.currentTimeMillis();
     String allureDirectory;
     String archivedDirectory;
-    String osName = System.getProperty("os.name").toLowerCase();
-    if (osName.indexOf("win") >= 0) {
+    if (isWindowsBased()) {
       allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
       archivedDirectory = "C:\\nginx\\html\\archives\\" + tagName + timeStamp;
-    } else if (osName.indexOf("nix") >= 0 || osName.indexOf("nux") >= 0 || osName.indexOf("aix") > 0) {
+    } else if (isLinuxBased()) {
       allureDirectory = "/var/www/allure/" + tagName;
       archivedDirectory = "/var/www/archives/" + tagName + timeStamp;
     } else {

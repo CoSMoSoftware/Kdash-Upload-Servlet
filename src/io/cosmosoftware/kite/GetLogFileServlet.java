@@ -3,21 +3,23 @@ package io.cosmosoftware.kite;
 import static io.cosmosoftware.kite.Utils.isLinuxBased;
 import static io.cosmosoftware.kite.Utils.isWindowsBased;
 
-import javax.json.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import javax.json.JsonArray;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
 
 @WebServlet(
         description = "Check result status",
-        urlPatterns = {"/checkResult"}
+        urlPatterns = {"/get-log"}
 )
 
-public class CheckResultStatusServlet extends HttpServlet {
+public class GetLogFileServlet extends HttpServlet {
   private static final long serialVersionUID = 1L;
-  public CheckResultStatusServlet() {
+  public GetLogFileServlet() {
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -29,26 +31,21 @@ public class CheckResultStatusServlet extends HttpServlet {
   }
 
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String allureDirectory;
     String tagName = request.getParameter("tagName");
-    if (isWindowsBased()) {
-      allureDirectory = "C:\\nginx\\html\\allure\\" + tagName;
-    } else if (isLinuxBased()) {
-      allureDirectory = "/var/www/allure/" + tagName;
+    String fileName = request.getParameter("fileName");
+    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\kite-logs\\" : "/var/www/kite-logs/")
+        + tagName + ((isWindowsBased() ? "\\" : "/") )
+        +  fileName;
+
+    File file = new File(pathToLogFolder);
+    if (file.exists()) {
+      response.setHeader("Content-Type", getServletContext().getMimeType(fileName));
+      response.setHeader("Content-Length", String.valueOf(file.length()));
+      response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
+      Files.copy(file.toPath(), response.getOutputStream());
     } else {
-      response.sendError(
-              HttpServletResponse.SC_BAD_REQUEST,
-              "Only Windows and Linux are supported.");
-      return;
+      response.sendError(404, "Could not find the file -> " + fileName);
     }
-
-    JsonArray status = Utils.checkStatus(allureDirectory);
-
-    response.setStatus(200);
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
-    response.getWriter().print(status);
-    response.getWriter().flush();
   }
 
 }
