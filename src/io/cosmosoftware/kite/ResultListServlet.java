@@ -104,11 +104,11 @@ public class ResultListServlet extends HttpServlet {
       if (Arrays.stream(bannedFolders).noneMatch(result.getName()::equals)) {
         if(i - start < perPage) {
           JsonObjectBuilder fileJsonBuilder = Json.createObjectBuilder();
+          fileJsonBuilder.add("archives", archives == null);
           fileJsonBuilder.add("status", status);
           fileJsonBuilder.add("name", result.getName());
           fileJsonBuilder.add("lastModified", result.lastModified());
-          fileJsonBuilder.add("logs", checkLogFilePath(result.getName()));
-
+          fileJsonBuilder.add("logs", checkLogFilePath(result.getName(), record));
           fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
           fileJsonBuilder
               .add("allureURL", "https://" + request.getServerName() + "/" + result.getName());

@@ -33,9 +33,15 @@ public class GetLogFileServlet extends HttpServlet {
   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
     String tagName = request.getParameter("tagName");
     String fileName = request.getParameter("fileName");
-    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\kite-logs\\" : "/var/www/kite-logs/")
+    String archives = request.getParameter("archives");
+    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\allure\\" : "/var/www/allure/")
+        // the archive is a bit complicated path
+        + (archives == null ? "" : (isWindowsBased() ? "archives\\" : "archives/")
+          + fileName.replace(".log", "") + ((isWindowsBased() ? "\\" : "/") )
+          )
+        //
         + tagName + ((isWindowsBased() ? "\\" : "/") )
-        +  fileName;
+        + fileName;
 
     File file = new File(pathToLogFolder);
     if (file.exists()) {
@@ -44,7 +50,7 @@ public class GetLogFileServlet extends HttpServlet {
       response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
       Files.copy(file.toPath(), response.getOutputStream());
     } else {
-      response.sendError(404, "Could not find the file -> " + fileName);
+      response.sendError(404, "Could not find the file -> " + pathToLogFolder);
     }
   }
 

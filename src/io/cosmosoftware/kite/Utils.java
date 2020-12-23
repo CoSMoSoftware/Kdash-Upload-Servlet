@@ -309,12 +309,20 @@ public class Utils {
     return osName.contains("nix") || osName.contains("nux") || osName.contains("aix");
   }
 
-  public static String checkLogFilePath(String resultName) {
+  public static String checkLogFilePath(String resultName, String record) {
     String res = "No logs found";
-    String pathToLogFolder = (isWindowsBased() ? "C:\\nginx\\html\\kite-logs\\" : "/var/www/kite-logs/") + resultName;
-    File logFolder = new File(pathToLogFolder);
+    String pathToResultFolder = isWindowsBased()
+        ? "C:\\nginx\\html\\allure\\"
+        : "/var/www/allure/";
+    if (record != null) {
+      pathToResultFolder  += isWindowsBased()
+          ? ("archives\\" + record + "\\")
+          : ("archives/" + record + "/");
+    }
+    pathToResultFolder += resultName;
+    File logFolder = new File(pathToResultFolder);
     if (logFolder.exists()) {
-      for (File subFile : logFolder.listFiles()) {
+      for (File subFile : Objects.requireNonNull(logFolder.listFiles())) {
         if (subFile.isFile() && subFile.getName().endsWith(".log")) {
           res = subFile.getName();
         }

@@ -5,6 +5,14 @@ function delete_report(btn) {
   });
 }
 
+function open_archives(btn) {
+  location.href = '/kdash/resultList?archives=true&record=' + btn.value;
+}
+
+function go_back() {
+  location.href = '/kdash/resultList';
+}
+
 function filterTagName() {
   let value = document.getElementById('tagNameid').value;
   location.href= "?tagName=" + value + "&" +( "<%=statusParams%>" == null ? "": "<%=statusParams%>") ;
