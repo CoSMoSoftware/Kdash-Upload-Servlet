@@ -57,17 +57,24 @@ public class ResultListServlet extends HttpServlet {
     }
     int start = Integer.parseInt(startString);
     int perPage = 100;
+    String archives = request.getParameter("archives");
+    String record = request.getParameter("record");
+
+    String path;
 
     if (isWindowsBased()) {
-      allureDirectory = new File("C:\\nginx\\html\\allure\\");
+      path = "C:\\nginx\\html\\allure\\" + (archives == null ? "" : "archives\\" + record);
     } else if (isLinuxBased()) {
-      allureDirectory = new File("/var/www/allure/");
+      path = "/var/www/allure/" + (archives == null ? "" : "archives/" + record);
     } else {
       response.sendError(
               HttpServletResponse.SC_BAD_REQUEST,
               "Only Windows and Linux are supported.");
       return;
     }
+
+    allureDirectory = new File(path);
+
     File[] resultList;
     resultList = allureDirectory.listFiles(getFilter(allureDirectory, tagName, statusFilters));
     if (resultList == null) {
@@ -76,7 +83,7 @@ public class ResultListServlet extends HttpServlet {
     Arrays.sort(resultList, Comparator.comparingLong(File::lastModified).reversed());
     JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
     JsonObjectBuilder statBuilder = Json.createObjectBuilder();
-    String[] bannedFolders = new String[]{"plugins", "data", "index.html", "favicon.ico", "history", "widgets", "styles.css", "app.js", "export"};
+    String[] bannedFolders = new String[]{"plugins", "data", "index.html", "favicon.ico", "history", "widgets", "styles.css", "app.js", "export", "archives"};
 
     if(start > resultList.length) {
       start = start - perPage;
