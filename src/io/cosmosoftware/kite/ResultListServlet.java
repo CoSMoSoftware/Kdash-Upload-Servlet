@@ -111,7 +111,7 @@ public class ResultListServlet extends HttpServlet {
           fileJsonBuilder.add("logs", checkLogFilePath(result.getName(), record));
           fileJsonBuilder.add("size", Utils.readableFileSize(FileUtils.sizeOfDirectory(result)));
           fileJsonBuilder
-              .add("allureURL", "https://" + request.getServerName() + "/" + result.getName());
+              .add("allureURL", "http://" + request.getServerName() + "/" + result.getName());
           arrayBuilder.add(fileJsonBuilder.build());
         }
       }
