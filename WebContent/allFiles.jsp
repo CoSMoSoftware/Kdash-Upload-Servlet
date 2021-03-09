@@ -49,13 +49,6 @@
               <td align="left" style="border: none;">
                 <label style="font-size: 50px;">KITE Results </label>
               </td>
-
-              <td align="left" style="border: none;">
-                <button type="button" class="btn btn-primary btn-lg">
-                  <a id="fileUpload" class="hyperLink"
-                  href="<%=request.getContextPath()%>/fileUpload.jsp">Upload file</a>
-                </button>
-              </td>
             </tr>
             <tr>
               <td align="left" style="border: none;">
@@ -165,9 +158,7 @@
             <th>Tag Name</th>
             <th>Last Update</th>
             <th>Test Cases</th>
-            <th>Logs</th>
             <th>Size</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -195,30 +186,7 @@
               </table>
             <% } %>
           </td>
-          <td align="center">
-            <% if(results.getJsonObject(i).getString("logs", "No logs found").equals("No logs found")) { %>
-              No logs found
-            <% } else { %>
-              <% if(results.getJsonObject(i).getBoolean("archives", false)) { %>
-                <a id="tagName" href='get-log?tagName=<%=results.getJsonObject(i).getString("name") %>&fileName=<%=results.getJsonObject(i).getString("logs", "null")%>'>
-              <% } else { %>
-                <a id="tagName" href='get-log?archives=true&tagName=<%=results.getJsonObject(i).getString("name") %>&fileName=<%=results.getJsonObject(i).getString("logs", "null")%>'>
-              <% }%>
-                view log
-              </a>
-            <% }%>
-            </td>
           <td align="center"><%=results.getJsonObject(i).getString("size") %></td>
-          <td align="center">
-            <span id="delete">
-              <button type="button" class="btn btn-danger btn-small" onclick="delete_report(this)" value='<%=results.getJsonObject(i).getString("name")%>'>Delete</button>
-              <% if(results.getJsonObject(i).getBoolean("archives", false)) { %>
-                <button type="button" class="btn btn-primary btn-small" onclick="open_archives(this)" value='<%=results.getJsonObject(i).getString("name")%>'>History</button>
-              <% } else { %>
-                <button type="button" class="btn btn-primary btn-small" onclick="go_back()"'>Back</button>
-              <% }%>
-            </span>
-          </td>
         </tr>
         <% }
           } else { %>

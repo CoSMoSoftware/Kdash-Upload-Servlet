@@ -1,16 +1,12 @@
 package io.cosmosoftware.kite;
 
 import javax.json.*;
-import javax.servlet.http.Part;
 import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class Utils {
   public Utils() {
@@ -89,132 +85,6 @@ public class Utils {
       }
     }
     return jsonObject;
-  }
-
-
-  public static boolean deleteDirectory(File directoryToBeDeleted) {
-    File[] allContents = directoryToBeDeleted.listFiles();
-    if (allContents != null) {
-      for (File file : allContents) {
-        deleteDirectory(file);
-      }
-    }
-    return directoryToBeDeleted.delete();
-  }
-
-
-  public static void moveDirectory(File directoryToBeMoved, File destinationDirectory) {
-    try {
-      Files.move(directoryToBeMoved.toPath(), destinationDirectory.toPath());
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  public static void unzip(Part part, String outputDirectory) throws IOException {
-    byte[] buffer = new byte[2048];
-    File testFile = new File(outputDirectory);
-    if (!testFile.exists()) {
-      testFile.mkdirs();
-    }
-    InputStream theFile = part.getInputStream();
-    ZipInputStream stream = new ZipInputStream(theFile);
-    String outdir = outputDirectory;
-    try {
-      System.out.println("Unzipping data to " + outputDirectory);
-      ZipEntry entry;
-      while ((entry = stream.getNextEntry()) != null) {
-        String outpath = outdir + "/" + entry.getName();
-        FileOutputStream output = null;
-        if (entry.getName().endsWith("/")) {
-          File x = new File(outpath);
-          x.mkdir();
-        } else {
-          try {
-            output = new FileOutputStream(outpath);
-            int len = 0;
-            while ((len = stream.read(buffer)) > 0) {
-              output.write(buffer, 0, len);
-            }
-          } finally {
-            if (output != null) output.close();
-          }
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      stream.close();
-    }
-  }
-
-  public static String executeCommand(String[] command)
-          throws IOException, IllegalArgumentException {
-    ProcessBuilder processBuilder = new ProcessBuilder(command);
-    processBuilder.redirectErrorStream(true);
-    System.out.println("*** Executing: ");
-    for (String component : command) {
-      System.out.print(component + " ");
-    }
-    Process process = processBuilder.start();
-    String line;
-    BufferedReader stdInput = null;
-    boolean error = false;
-    try {
-
-      if (process.getInputStream().available() > 0) {
-        stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      } else {
-        stdInput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-      }
-      while ((line = stdInput.readLine()) != null) {
-        line = String.format(command[0] + " stdout: %s\n", line);
-        System.out.println(line);
-        if (line.toLowerCase().contains("fail")
-                || line.toLowerCase().contains("fatal")
-                || line.toLowerCase().contains("error")) {
-          error = true;
-        }
-      }
-    } catch (IOException e) {
-      // logger.error("Exception while reading the Input Stream", e);
-    } finally {
-      if (stdInput != null) {
-        try {
-          stdInput.close();
-        } catch (IOException e) {
-        }
-      }
-    }
-    if (error) {
-      throw new IllegalArgumentException(
-              "Something is wrong with the command execution, please check the log file for more details");
-    }
-    String output = buildOutput(process, null, null);
-    return output;
-  }
-
-  public static String buildOutput(Process process, List<String> stringList, String filter) {
-    Scanner scanner = new Scanner(process.getInputStream());
-
-    StringBuilder builder = new StringBuilder();
-    System.out.println("*** BEGIN OUTPUT ***");
-    while (scanner.hasNextLine()) {
-      String line = scanner.nextLine();
-      System.out.println(line);
-      builder.append(line);
-      if (stringList != null) {
-        if (filter == null) {
-          stringList.add(line);
-        } else if (line.startsWith(filter)) {
-          stringList.add(line);
-        }
-      }
-    }
-    System.out.println("*** END OUTPUT ***");
-    scanner.close();
-
-    return builder.toString();
   }
 
   public static JsonArray checkStatus(String filePath) {
@@ -309,25 +179,4 @@ public class Utils {
     return osName.contains("nix") || osName.contains("nux") || osName.contains("aix");
   }
 
-  public static String checkLogFilePath(String resultName, String record) {
-    String res = "No logs found";
-    String pathToResultFolder = isWindowsBased()
-        ? "C:\\nginx\\html\\allure\\"
-        : "/var/www/allure/";
-    if (record != null) {
-      pathToResultFolder  += isWindowsBased()
-          ? ("archives\\" + record + "\\")
-          : ("archives/" + record + "/");
-    }
-    pathToResultFolder += resultName;
-    File logFolder = new File(pathToResultFolder);
-    if (logFolder.exists()) {
-      for (File subFile : Objects.requireNonNull(logFolder.listFiles())) {
-        if (subFile.isFile() && subFile.getName().endsWith(".log")) {
-          res = subFile.getName();
-        }
-      }
-    }
-    return res;
-  }
 }
